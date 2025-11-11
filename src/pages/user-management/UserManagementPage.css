@@ -1,0 +1,186 @@
+.user-management-page {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.user-management-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.user-management-title {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  font-size: clamp(28px, 3vw, 36px);
+  font-weight: 700;
+  color: #1c1c3f;
+}
+
+.user-management-create {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  width: 220px;
+  height: 220px;
+  border-radius: 20px;
+  border: none;
+  background: #ffffff;
+  box-shadow: 0 28px 48px rgba(28, 31, 74, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.user-management-create:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 32px 56px rgba(28, 31, 74, 0.12);
+}
+
+.user-management-create__icon {
+  font-size: 42px;
+  color: #e64424;
+}
+
+.user-management-create__label {
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #1c1c3f;
+}
+
+.user-management-table-section {
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 28px 48px rgba(28, 31, 74, 0.1);
+  overflow: hidden;
+}
+
+.user-management-table.p-datatable {
+  width: 100%;
+  border: none;
+  font-family: "Inter", sans-serif;
+}
+
+.user-management-table .p-datatable-thead > tr > th {
+  background: #5a5f70;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 18px 24px;
+  border: none;
+}
+
+.user-management-table .p-datatable-thead > tr > th:first-child {
+  border-top-left-radius: 24px;
+}
+
+.user-management-table .p-datatable-thead > tr > th:last-child {
+  border-top-right-radius: 24px;
+}
+
+.user-management-table .p-datatable-tbody > tr > td {
+  padding: 20px 24px;
+  border: none;
+  font-size: 16px;
+  color: #1c1c3f;
+}
+
+.user-management-table .p-datatable-tbody > tr:nth-child(even) {
+  background: rgba(28, 31, 74, 0.04);
+}
+
+.user-management-table__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.user-management-table__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+}
+
+.user-management-table__badge--admin {
+  background: rgba(14, 165, 89, 0.12);
+  color: #0ea559;
+}
+
+.user-management-table__badge--primary {
+  background: rgba(103, 80, 164, 0.16);
+  color: #5746a0;
+}
+
+.user-management-table__badge--secondary {
+  background: rgba(255, 159, 67, 0.2);
+  color: #d97706;
+}
+
+.user-management-table__badge--view {
+  background: rgba(255, 196, 55, 0.2);
+  color: #d27c00;
+}
+
+@media (max-width: 1024px) {
+  .user-management-header {
+    align-items: flex-start;
+  }
+
+  .user-management-create {
+    width: 180px;
+    height: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  .user-management-page {
+    gap: 24px;
+  }
+
+  .user-management-header {
+    align-items: center;
+    text-align: center;
+  }
+
+  .user-management-create {
+    width: 100%;
+    height: 180px;
+    gap: 20px;
+  }
+
+  .user-management-create__icon {
+    font-size: 36px;
+  }
+
+  .user-management-create__label {
+    font-size: 14px;
+  }
+
+  .user-management-table-section {
+    overflow-x: auto;
+  }
+
+  .user-management-table .p-datatable-wrapper {
+    min-width: 640px;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-management-create {
+    height: 160px;
+  }
+
+  .user-management-table .p-datatable-wrapper {
+    min-width: 520px;
+  }
+}
