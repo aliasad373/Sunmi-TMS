@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Create an Axios instance with a base URL
 const api = axios.create({
-const baseUrl = "http://203.175.74.144:2000/api"; // 🔹 Replace with your backend base URL
+   baseURL:"http://203.175.74.144:2000/api"; // 🔹 Replace with your backend base URL
   headers: {
     "Content-Type": "application/json",
   },
