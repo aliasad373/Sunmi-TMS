@@ -42,6 +42,8 @@ export default function CreateTerminalPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [MerchatID, setMerchantID] = useState()
   const [MerchantOptions, setMerchantOption] = useState([])
+  const [posType, setPosType] = useState([ { label: "Test", value: "test" }, { label: "Production", value: "production" }])
+  const [POS_type, setPOS_Type] = useState("")
   const [serialNumber, setSerialNumber] = useState("")
   const [terminalId, setTerminalID] = useState("")
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -99,7 +101,8 @@ const updatedMerchantList = [
         PhoneNumber: phoneNumber,
         serial_number: serialNumber,
         country_code: "0586",
-        currency_code: "0586"
+        currency_code: "0586",
+        posType: POS_type
       });
      console.log(response)
      if(response.data.isSuccess){
@@ -181,7 +184,17 @@ const updatedMerchantList = [
             className="onboard-input"
             disabled
           />
-        </div>     
+        </div>  
+        <div className="create-terminal__dropdown">
+          <Dropdown
+            value={POS_type}
+            options={posType}
+            onChange={(e)=>{
+               setPOS_Type(e.value)
+            }}
+            placeholder="Select POS Type"
+          />
+        </div>   
 
         <Button
           type="submit"
