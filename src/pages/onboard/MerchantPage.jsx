@@ -79,35 +79,7 @@ export default function MerchantPage() {
         </button>
       </header>
 
-      <section className="terminals-controls">
-        <div className="terminals-merchant">
-          <Dropdown
-            value={selectedMerchant}
-            options={MERCHANTS}
-            onChange={(e) => setSelectedMerchant(e.value)}
-            placeholder="Select Merchant"
-          />
-        </div>
-
-        <section className="search-bar">
-          <div className="search-bar__input p-inputgroup">
-            <InputText
-              value={searchValue}
-              onChange={(event) => setSearchValue(event.target.value)}
-              placeholder="Search"
-              aria-label="Search"
-              className="search-bar__input-field"
-            />
-            <span className="p-inputgroup-addon search-bar__input-addon">
-              <span className="search-bar__icon" aria-hidden />
-            </span>
-          </div>
-          <button type="button" className="search-bar__filter">
-            <span className="search-bar__filter-label">Apply Filter</span>
-            <img src={searchIcon} alt="" className="search-bar__filter-icon" />
-          </button>
-        </section>
-      </section>
+     
 
       <section className="terminals-table-section">
         <DataTable

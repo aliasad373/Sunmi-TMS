@@ -6,7 +6,7 @@ import { Dialog } from "primereact/dialog";
 import "./CreateUserPage.css";
 import userIcon from "../../assets/images/user_management.svg";
 import successIcon from "../../assets/images/check-green-circle.svg";
-
+import api from "../../network/api";
 const ACCESS_OPTIONS = [
   { label: "Admin", value: "admin" },
   { label: "Bind/Unbind", value: "bind" },
@@ -23,31 +23,44 @@ const INITIAL_FORM = {
 };
 
 export default function CreateUserPage() {
-  const [formState, setFormState] = useState(INITIAL_FORM);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState(""); 
+  const [message, setMessage]= useState("")
+  const [usertype, setUsertype] = useState("operator");
 
   const handleInputChange = (field) => (event) => {
     setFormState((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
-  const handleAccessToggle = (accessValue) => (event) => {
-    const { checked } = event;
-    setFormState((prev) => {
-      const { access } = prev;
-      if (checked && !access.includes(accessValue)) {
-        return { ...prev, access: [...access, accessValue] };
-      }
-      if (!checked && access.includes(accessValue)) {
-        return { ...prev, access: access.filter((item) => item !== accessValue) };
-      }
-      return prev;
-    });
-  };
-
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // TODO: replace with real submission logic
-    setShowSuccess(true);
+   if(!userName || !password || !name || !usertype){
+      alert("please fill all fields")
+    }else{
+       //API call
+       try{
+       const response = await api.post("/register", {
+        username: userName,
+        password: password,
+        name: name,
+        user_type: usertype,
+        "roles": ["terminal_configurations"]
+      });
+      console.log(response)
+        if(response.data.isSuccess){
+         setMessage(response.data.message)
+        setShowSuccess(true)
+        }else{
+         alert(response.data.message)
+        }
+          }catch(error){
+            console.log(error)
+           alert(error.response.data.message)
+          console.log(error)
+       }
+       }
   };
 
   const handleCloseDialog = () => setShowSuccess(false);
@@ -66,55 +79,25 @@ export default function CreateUserPage() {
 
       <form className="onboard-form" onSubmit={handleSubmit}>
         <InputText
-          value={formState.userId}
-          onChange={handleInputChange("userId")}
-          placeholder="User ID"
+          value={userName}
+          onChange={(event)=>{setUserName(event.target.value)}}
+          placeholder="User name e.g USR001"
           className="onboard-input"
         />
 
         <InputText
-          value={formState.name}
-          onChange={handleInputChange("name")}
+          value={password}
+          onChange={(event)=>{setPassword(event.target.value)}}
+          placeholder="Password"
+          className="onboard-input"
+        />
+
+        <InputText
+          value={name}
+          onChange={(event)=>{setName(event.target.value)}}
           placeholder="Name"
           className="onboard-input"
         />
-
-        <InputText
-          value={formState.username}
-          onChange={handleInputChange("username")}
-          placeholder="Username"
-          className="onboard-input"
-        />
-
-        <InputText
-          value={formState.password}
-          onChange={handleInputChange("password")}
-          placeholder="Password"
-          type="password"
-          className="onboard-input"
-        />
-
-        <section className="create-user__access">
-          <h2 className="create-user__access-title">Access</h2>
-          <div className="create-user__access-grid">
-            {ACCESS_OPTIONS.map((option) => {
-              const checkboxId = `create-user-access-${option.value}`;
-              return (
-                <label key={checkboxId} htmlFor={checkboxId} className="create-user__access-item">
-                  <Checkbox
-                    inputId={checkboxId}
-                    value={option.value}
-                    checked={formState.access.includes(option.value)}
-                    onChange={handleAccessToggle(option.value)}
-                    className="create-user__checkbox"
-                  />
-                  <span>{option.label}</span>
-                </label>
-              );
-            })}
-          </div>
-        </section>
-
         <Button
           type="submit"
           label="Submit"
@@ -137,7 +120,7 @@ export default function CreateUserPage() {
         <div className="onboard-modal__content">
           <img src={successIcon} alt="Success" className="onboard-modal__icon" />
           <p className="onboard-modal__message">
-            User <span className="onboard-modal__mid">{formState.userId || "ID"}</span> Created Successfully!
+            User <span className="onboard-modal__mid">{userName}</span> Created Successfully!
           </p>
           <div className="onboard-modal__actions">
             <Button

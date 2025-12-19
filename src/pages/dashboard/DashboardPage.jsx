@@ -7,10 +7,10 @@ import "./DashboardPage.css";
 import searchIcon from "../../assets/images/search-icon.svg";
 
 const stats = [
-  { id: "merchants", label: "Total Merchants", value: 1200 },
-  { id: "terminals-total", label: "Total Terminals", value: 18000 },
-  { id: "terminals-live", label: "Total Terminals live", value: 18000 },
-  { id: "terminals-active", label: "Total Terminals live", value: 18000 },
+  { id: "merchants", label: "Total Merchants", value: 0 },
+  { id: "terminals-total", label: "Total Terminals", value: 0 },
+  { id: "terminals-live", label: "Total Terminals live", value: 0 },
+  { id: "terminals-active", label: "Total Terminals live", value: 0 },
 ];
 
 
@@ -18,6 +18,7 @@ const stats = [
 export default function DashboardPage() {
   const [searchValue, setSearchValue] = useState("");
   const [tableRows, setTableRows] = useState([])
+  const [statValues, setStatValues] = useState([]);
   const joinClasses = (...classes) => classes.filter(Boolean).join(" ");
 useEffect(()=>{
     const loadMerchants = async()=>{
@@ -29,12 +30,28 @@ useEffect(()=>{
     loadMerchants()
    },[])
 
+   useEffect(()=>{
+ const loadStats = async()=>{
+    var response = await api.get("/reporting-stats");
+    const data  = response.data;
+    console.log(data) 
+    const stats = [
+  { id: "merchants", label: "Total Merchants", value: data.totalMerchants },
+  { id: "Terminals", label: "Total Terminals", value: data.totalTerminals },
+  { id: "Today's Transactions", label: "Total Transaction today", value: data.todayTransactions },
+  { id: "Transactions", label: "Total Transactions", value: data.totalTransactions },
+];
+    setStatValues(stats)
+    console.log(response)
+    }
+    loadStats()
+   },[])
+
  const columns = useMemo(
     () => [
       { field: "Amount", header: "Amount" },
       { field: "STAN", header: "STAN" },
-
-      {field: "AuthNumber", header:"Auth Number"},
+       {field: "AuthNumber", header:"Auth Number"},
       {field: "ResponseCode", header:"Response Code"},
       {field: "TerminalID", header:"TID"},
       {field: "CardNumber", header:"Card No."},
@@ -51,32 +68,15 @@ useEffect(()=>{
       </header>
 
       <section className="dashboard-stats">
-        {stats.map((stat) => (
-          <article key={stat.id} className="dashboard-stat-card">
-            <p className="dashboard-stat-card__label">{stat.label}</p>
-            <p className="dashboard-stat-card__value">{stat.value.toLocaleString()}</p>
+        {statValues.map((statValues) => (
+          <article key={statValues.id} className="dashboard-stat-card">
+            <p className="dashboard-stat-card__label">{statValues.label}</p>
+            <p className="dashboard-stat-card__value">{statValues.value.toLocaleString()}</p>
           </article>
         ))}
       </section>
 
-      <section className="dashboard-search">
-        <div className="dashboard-search__input p-inputgroup">
-          <InputText
-            value={searchValue}
-            onChange={(event) => setSearchValue(event.target.value)}
-            placeholder="Search"
-            aria-label="Search"
-            className="dashboard-search__input-field"
-          />
-          <span className="p-inputgroup-addon dashboard-search__input-addon">
-            <span className="dashboard-search__icon" aria-hidden />
-          </span>
-        </div>
-        <button type="button" className="dashboard-search__filter">
-          <span className="dashboard-search__filter-label">Apply Filter</span>
-          <img src={searchIcon} alt="" className="dashboard-search__filter-icon" />
-        </button>
-      </section>
+      
 
       <section className="dashboard-table-section">
         <DataTable

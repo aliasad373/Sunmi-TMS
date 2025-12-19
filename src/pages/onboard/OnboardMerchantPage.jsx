@@ -51,7 +51,7 @@ export default function OnboardMerchantPage() {
     }else{
        //API call
        try{
-const response = await api.post("/onboard_merchant  ", {
+const response = await api.post("/onboard_merchant", {
         MerchantName: MerchantName,
         MID: MID,
         BusinessName: businessName,

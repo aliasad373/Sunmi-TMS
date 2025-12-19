@@ -1,8 +1,9 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import "./UserManagementPage.css";
+import api from "../../network/api";  
 
 const USERS = [
   {
@@ -47,14 +48,22 @@ const USERS = [
 
 export default function UserManagementPage() {
   const navigate = useNavigate();
-
+  const [user, setUser] = useState([]);
+useEffect(()=>{
+    const loadMerchants = async()=>{
+    var response = await api.get("/users");
+    const data  = response.data.users;
+    setUser(data)
+    console.log(response)
+    }
+    loadMerchants()
+   },[])
   const columns = useMemo(
     () => [
-      { field: "userId", header: "User ID" },
+      { field: "id", header: "User ID" },
       { field: "name", header: "Name" },
       { field: "username", header: "Username" },
-      { field: "password", header: "Password" },
-      { field: "access", header: "Access" },
+      { field: "user_type", header: "Access" },
     ],
     []
   );
@@ -87,7 +96,7 @@ export default function UserManagementPage() {
       </header>
 
       <section className="user-management-table-section">
-        <DataTable value={USERS} className="user-management-table" dataKey="userId" responsiveLayout="scroll">
+        <DataTable value={user} className="user-management-table" dataKey="userId" responsiveLayout="scroll">
           {columns.map((column) => (
             <Column
               key={column.field}
