@@ -9,6 +9,8 @@ import CreateUserPage from "../pages/user-management/CreateUserPage.jsx";
 import TerminalsPage from "../pages/terminals/TerminalsPage.jsx";
 import CreateTerminalPage from "../pages/terminals/CreateTerminalPage.jsx";
 import MerchantPage from "../pages/onboard/MerchantPage.jsx";
+import ReportingPage from "../pages/reporting/ReportingPage.jsx";
+import MerchantDailyTransactionsPage from "../pages/reporting/MerchantDailyTransactionsPage.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -40,6 +42,14 @@ const router = createBrowserRouter([
           {
             path: "terminals/create",
             element: <CreateTerminalPage />,
+          },
+          {
+            path: "reporting",
+            element: <ReportingPage />,
+          },
+          {
+            path: "merchant-daily-transactions",
+            element: <MerchantDailyTransactionsPage />,
           },
           {
             path:"merchants",

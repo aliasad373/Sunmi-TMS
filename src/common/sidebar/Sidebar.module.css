@@ -133,6 +133,10 @@
 
 .footer {
   margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
 }
 
 .profile {
@@ -153,6 +157,47 @@
   font-style: normal;
   font-weight: 400;
   line-height: normal;
+}
+
+.logoutButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 170px;
+  max-width: 100%;
+  border: 1px solid rgba(230, 68, 36, 0.28);
+  border-radius: 6px;
+  padding: 9px 12px;
+  background: rgba(230, 68, 36, 0.08);
+  color: #e64424;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.logoutButton:hover {
+  background: rgba(230, 68, 36, 0.14);
+  border-color: rgba(230, 68, 36, 0.55);
+}
+
+.logoutButton:active {
+  background: rgba(230, 68, 36, 0.18);
+}
+
+.logoutButton:focus-visible {
+  outline: 2px solid rgba(230, 68, 36, 0.55);
+  outline-offset: 2px;
+}
+
+.logoutIcon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.logoutLabel {
+  font-family: "Inter", sans-serif;
 }
 
 @supports (leading-trim: both) and (text-edge: cap) {

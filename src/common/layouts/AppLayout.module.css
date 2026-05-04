@@ -6,6 +6,10 @@
 
 .sidebarContainer {
   display: flex;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  align-self: flex-start;
 }
 
 .layoutContent {
@@ -14,6 +18,8 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
+  min-width: 0;
+  overflow-x: hidden;
   font-family: "Inter", sans-serif;
   color: #1c1f4a;
 }
@@ -23,6 +29,7 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
+  min-width: 0;
 }
 
 .mobileToggle {

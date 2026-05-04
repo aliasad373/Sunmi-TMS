@@ -22,6 +22,23 @@ body {
   color: inherit;
 }
 
+.merchant-date-calendar.p-calendar.p-inputwrapper {
+  width: 100%;
+}
+
+.merchant-date-calendar .p-inputtext {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.merchant-date-calendar .p-datepicker-trigger {
+  height: 40px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 0;
+  margin-left: 0;
+}
+
 a {
   color: inherit;
 }
