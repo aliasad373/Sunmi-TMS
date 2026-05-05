@@ -7,6 +7,7 @@ import onboardIcon from "../../assets/images/onboard_merchant.svg";
 import userIcon from "../../assets/images/user_management.svg";
 import terminalsIcon from "../../assets/images/terminals.svg";
 import reportingIcon from "../../assets/images/reporting.svg";
+import merchantDailyTransactionsIcon from "../../assets/images/merchant-daily-transactions.svg";
 import avatarProfile from "../../assets/images/avatar-profile.svg";
 
 
@@ -20,7 +21,7 @@ const MENU_ITEMS = [
     id: "merchant-daily-transactions",
     label: "Merchant Daily Transactions",
     path: "/merchant-daily-transactions",
-    icon: reportingIcon,
+    icon: merchantDailyTransactionsIcon,
     iconWidth: "24px",
   },
 ];

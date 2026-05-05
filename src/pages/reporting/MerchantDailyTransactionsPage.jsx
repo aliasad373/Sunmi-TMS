@@ -38,11 +38,52 @@ const downloadCsv = ({ rows, columns, filename }) => {
 
 const REPORTING_TIMEZONE = "Asia/Karachi";
 
-const removeFirstPrefix = (value) => {
+const decodeHexAsciiIfLikely = (value) => {
+  if (value === null || value === undefined) return null;
+  const hex = String(value).trim();
+  if (!hex) return null;
+  if (hex.length % 2 !== 0) return null;
+  if (!/^[0-9a-fA-F]+$/.test(hex)) return null;
+
+  let out = "";
+  for (let i = 0; i < hex.length; i += 2) {
+    const code = Number.parseInt(hex.slice(i, i + 2), 16);
+    if (Number.isNaN(code)) return null;
+    out += String.fromCharCode(code);
+  }
+
+  const printable = /^[\x20-\x7E]+$/.test(out);
+  if (!printable) return null;
+  return out;
+};
+
+const asciiToHex = (value) => {
   if (value === null || value === undefined) return "";
   const str = String(value);
-  if (!str) return "";
-  return str.startsWith("3") ? str.slice(1) : str;
+  let out = "";
+  for (let i = 0; i < str.length; i += 1) {
+    out += str.charCodeAt(i).toString(16).padStart(2, "0").toUpperCase();
+  }
+  return out;
+};
+
+const formatHexAsciiOrAsciiToHex = (value) => {
+  const decoded = decodeHexAsciiIfLikely(value);
+  if (decoded !== null) return decoded;
+  return asciiToHex(value);
+};
+
+const formatRrn = (row) => {
+  const raw = row?.RRN;
+  const decoded = decodeHexAsciiIfLikely(raw);
+  const rrnCandidate = (decoded ?? String(raw ?? "")).trim();
+  return rrnCandidate;
+};
+
+const formatAuthCode = (row) => {
+  const raw = row?.AuthNumber;
+  const decoded = decodeHexAsciiIfLikely(raw);
+  return (decoded ?? String(raw ?? "")).trim();
 };
 
 const getCreatedAtValue = (row) =>
@@ -140,9 +181,9 @@ export default function MerchantDailyTransactionsPage() {
       { field: "CardNumber", header: "Card No" },
       { field: "Amount", header: "Amount" },
       { field: "STAN", header: "STAN" },
-      { field: "RRN", header: "RRN", value: (row) => removeFirstPrefix(row?.RRN) },
-      { field: "ResponseCode", header: "Response Code", value: (row) => removeFirstPrefix(row?.ResponseCode) },
-      { field: "AuthNumber", header: "AuthCode" },
+      { field: "RRN", header: "RRN", value: (row) => formatRrn(row) },
+      { field: "ResponseCode", header: "Response Code", value: (row) => formatHexAsciiOrAsciiToHex(row?.ResponseCode) },
+      { field: "AuthNumber", header: "AuthCode", value: (row) => formatAuthCode(row) },
       { field: "BatchNo", header: "Batch No" },
     ];
 
