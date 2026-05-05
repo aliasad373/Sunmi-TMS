@@ -137,6 +137,7 @@ export default function MerchantDailyTransactionsPage() {
 
   const settlementOptions = useMemo(
     () => [
+      { label: "All", value: "" },
       { label: "Settled", value: "1" },
       { label: "Unsettled", value: "0" },
     ],
@@ -232,7 +233,7 @@ export default function MerchantDailyTransactionsPage() {
   const filteredRows = useMemo(() => {
     const midValue = mid.trim();
     const tidValue = tid.trim();
-    const settlementValue = settlementStatus.trim();
+    const settlementValue = String(settlementStatus ?? "").trim();
     const { startYmd, endYmd } = createdAtRange;
 
     if (!midValue && !tidValue && !settlementValue && !startYmd && !endYmd) return rows;
@@ -253,6 +254,23 @@ export default function MerchantDailyTransactionsPage() {
       return true;
     });
   }, [rows, mid, tid, settlementStatus, createdAtRange]);
+
+  const filteredTotalAmount = useMemo(() => {
+    const parseAmount = (value) => {
+      if (value === null || value === undefined) return 0;
+      const raw = String(value);
+      const cleaned = raw.replace(/[^0-9.-]/g, "");
+      const num = Number.parseFloat(cleaned);
+      return Number.isFinite(num) ? num : 0;
+    };
+
+    let total = 0;
+    filteredRows.forEach((r) => {
+      if (!r || typeof r !== "object") return;
+      total += parseAmount(r.Amount);
+    });
+    return total;
+  }, [filteredRows]);
 
   const handleDownloadCsv = () => {
     const now = new Date();
@@ -306,7 +324,8 @@ export default function MerchantDailyTransactionsPage() {
       {error ? <div style={{ color: "#e64424", fontWeight: 700 }}>{error}</div> : null}
 
       <div style={{ fontWeight: 700, color: "rgba(28, 31, 74, 0.85)", marginBottom: 8 }}>
-        Total Transactions: {filteredRows.length.toLocaleString()}
+        Total Transactions: {filteredRows.length.toLocaleString()} | Total Amount:{" "}
+        {filteredTotalAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}
       </div>
 
       <div
@@ -370,6 +389,8 @@ export default function MerchantDailyTransactionsPage() {
             value={settlementStatus}
             options={settlementOptions}
             onChange={(e) => setSettlementStatus(e.value)}
+            optionLabel="label"
+            optionValue="value"
             placeholder="Select status"
             style={{ width: "100%", height: 40 }}
             inputStyle={{ height: 40, padding: "0 12px" }}
