@@ -1,13 +1,11 @@
-import { use, useState } from "react";
+import { useState } from "react";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { useNavigate } from "react-router-dom";
 import { Dropdown } from "primereact/dropdown";
 import PhoneInput from "react-phone-input-2";
-import onboardIcon from "../../assets/images/onboard_merchant.svg";
 import successIcon from "../../assets/images/check-green-circle.svg";
-import "./OnboardMerchantPage.css";
 import api from "../../network/api";
 
 const INITIAL_FORM = {
@@ -84,79 +82,152 @@ const response = await api.post("/onboard_merchant", {
     setEmail("")
     setPhoneNumber("")
     setAddress("")
+    setMType("")
   };
 
   return (
-    <div className="onboard-page">
-      <header className="onboard-header">
-        <img src={onboardIcon} alt="Onboard Merchant" className="onboard-header__icon" />
-        <h1 className="onboard-header__title">Onboard New Merchant</h1>
-      </header>
+    <div className="mx-auto w-full max-w-6xl px-6 py-8">
+      <div className="mb-5 text-xs text-slate-500">
+        Operations / Merchant / <span className="text-sky-400">Add Merchant</span>
+      </div>
 
-      <form className="onboard-form" onSubmit={handleSubmit}>
-        <InputText
-          value={MID}
-          onChange={(event)=>{setMID(event.target.value)}}
-          placeholder="Enter Merchant ID"
-          className="onboard-input"
-        />
-        <InputText
-          value={MerchantName}
-          onChange={(event)=>{setMerchantName(event.target.value)}}
-          placeholder="Enter Merchant Name"
-          className="onboard-input"
-        />
-         <Dropdown
-                    value={mType}
-                    options={MERCHANT_OPTIONS}
-                    onChange={(event)=>{
-                      console.log(event)
-                      setMLable(event.target.lable)
-                      setMType(event.target.value)
-                    }}
-                    placeholder="Select Merchant"
-                  />
+      <div className="mb-8">
+        <h1 className="text-2xl font-semibold text-slate-100">Add Merchant</h1>
+        <p className="mt-1 text-sm text-slate-400">Register a new merchant on the portal</p>
+      </div>
 
-        <InputText
-          value={businessName}
-          onChange={(event)=>{setBusinessName(event.target.value)}}
-          placeholder="Enter Business Name"
-          className="onboard-input"
-        />
-      
-          <PhoneInput
-            country="pk"
-            value={phoneNumber}
-            onChange={(value)=>{setPhoneNumber(value)}}
-            placeholder="Enter phone number"
-            containerClass="create-terminal__phone"
-            buttonClass="create-terminal__phone-flag"
-            inputClass="create-terminal__phone-input"
-            dropdownClass="create-terminal__phone-dropdown"
-            enableSearch
-            countryCodeEditable={false}
-          />
-          <InputText
-          value={Email}
-          onChange={(event)=>{setEmail(event.target.value)}}
-          placeholder="Email"
-          className="onboard-input"
-        />
-        
-        <InputText
-          value={Adress}
-          onChange={(event)=>{setAddress(event.target.value)}}
-          placeholder="Address "
-          className="onboard-input"
-        />
-        <Button
-          type="submit"
-          label="Submit"
-          icon="onboard-button__icon"
-          iconPos="right"
-          className="onboard-submit"
-        />
-      </form>
+      <div className="rounded-2xl border border-white/5 bg-[#0b1220]/70 p-6 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <section>
+            <div className="mb-4 text-[11px] font-semibold tracking-wider text-slate-500">BUSINESS INFORMATION</div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label className="mb-2 block text-xs font-medium text-slate-300">
+                  Merchant ID <span className="text-rose-400">*</span>
+                </label>
+                <InputText
+                  value={MID}
+                  onChange={(event) => {
+                    setMID(event.target.value);
+                  }}
+                  placeholder="e.g. 123456"
+                  className="w-full !rounded-xl !border !border-white/10 !bg-black/20 !px-4 !py-3 !text-sm !text-slate-100 placeholder:!text-slate-500 focus:!shadow-none"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-xs font-medium text-slate-300">
+                  Business Type <span className="text-rose-400">*</span>
+                </label>
+                <Dropdown
+                  value={mType}
+                  options={MERCHANT_OPTIONS}
+                  onChange={(event) => {
+                    setMType(event.value);
+                  }}
+                  placeholder="Select type"
+                  className="w-full !rounded-xl !border !border-white/10 !bg-black/20 !text-sm !text-slate-100"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-xs font-medium text-slate-300">
+                  Merchant Name <span className="text-rose-400">*</span>
+                </label>
+                <InputText
+                  value={MerchantName}
+                  onChange={(event) => {
+                    setMerchantName(event.target.value);
+                  }}
+                  placeholder="e.g. Metro Superstore"
+                  className="w-full !rounded-xl !border !border-white/10 !bg-black/20 !px-4 !py-3 !text-sm !text-slate-100 placeholder:!text-slate-500 focus:!shadow-none"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-xs font-medium text-slate-300">
+                  Business Name <span className="text-rose-400">*</span>
+                </label>
+                <InputText
+                  value={businessName}
+                  onChange={(event) => {
+                    setBusinessName(event.target.value);
+                  }}
+                  placeholder="Business legal name"
+                  className="w-full !rounded-xl !border !border-white/10 !bg-black/20 !px-4 !py-3 !text-sm !text-slate-100 placeholder:!text-slate-500 focus:!shadow-none"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-xs font-medium text-slate-300">
+                  Business Address <span className="text-rose-400">*</span>
+                </label>
+                <InputText
+                  value={Adress}
+                  onChange={(event) => {
+                    setAddress(event.target.value);
+                  }}
+                  placeholder="Full address including street, area"
+                  className="w-full !rounded-xl !border !border-white/10 !bg-black/20 !px-4 !py-3 !text-sm !text-slate-100 placeholder:!text-slate-500 focus:!shadow-none"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div className="mb-4 text-[11px] font-semibold tracking-wider text-slate-500">OWNER / CONTACT DETAILS</div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label className="mb-2 block text-xs font-medium text-slate-300">
+                  Phone Number <span className="text-rose-400">*</span>
+                </label>
+                <PhoneInput
+                  country="pk"
+                  value={phoneNumber}
+                  onChange={(value) => {
+                    setPhoneNumber(value);
+                  }}
+                  placeholder="Enter phone number"
+                  containerClass="w-full"
+                  inputClass="!w-full !h-[46px] !rounded-xl !border !border-white/10 !bg-black/20 !text-sm !text-slate-100 placeholder:!text-slate-500 !pl-12 focus:!shadow-none"
+                  buttonClass="!rounded-xl !border !border-white/10 !bg-black/20"
+                  dropdownClass="!bg-[#0b1220] !text-slate-100"
+                  enableSearch
+                  countryCodeEditable={false}
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-xs font-medium text-slate-300">
+                  Email <span className="text-rose-400">*</span>
+                </label>
+                <InputText
+                  value={Email}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                  }}
+                  placeholder="example@email.com"
+                  className="w-full !rounded-xl !border !border-white/10 !bg-black/20 !px-4 !py-3 !text-sm !text-slate-100 placeholder:!text-slate-500 focus:!shadow-none"
+                />
+              </div>
+            </div>
+          </section>
+
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button
+              type="submit"
+              label="Create Merchant"
+              className="!rounded-lg !border !border-sky-500/30 !bg-sky-500/15 !px-4 !py-2.5 !text-xs !font-semibold !text-sky-200 hover:!bg-sky-500/20"
+            />
+            <Button
+              type="button"
+              label="Reset"
+              onClick={handleReset}
+              className="!rounded-lg !border !border-white/10 !bg-white/5 !px-4 !py-2.5 !text-xs !font-semibold !text-slate-100 hover:!bg-white/10"
+            />
+          </div>
+        </form>
+      </div>
 
       <Dialog
         visible={showSuccess}
@@ -168,12 +239,12 @@ const response = await api.post("/onboard_merchant", {
         className="onboard-modal"
         showHeader={false}
       >
-        <div className="onboard-modal__content">
-          <img src={successIcon} alt="Success" className="onboard-modal__icon" />
-          <p className="onboard-modal__message">
-            Merchant <span className="onboard-modal__mid">{MID}</span> Onboarded Successfully!
+        <div className="rounded-2xl border border-white/10 bg-[#0b1220] p-8 text-center text-slate-100">
+          <img src={successIcon} alt="Success" className="mx-auto mb-4 h-12 w-12" />
+          <p className="text-base font-semibold">
+            Merchant <span className="text-sky-300">{MID}</span> Onboarded Successfully!
           </p>
-          <div className="onboard-modal__actions">
+          <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
             <Button
               type="button"
               label="Close"
@@ -182,15 +253,13 @@ const response = await api.post("/onboard_merchant", {
                 setShowSuccess(false)
                 
               }}
-              className="onboard-modal__close"
+              className="!rounded-xl !border !border-white/10 !bg-white/5 !px-6 !py-3 !text-sm !font-semibold !text-slate-100 hover:!bg-white/10"
             />
             <Button
               type="button"
               label="Onboard New Merchant"
-              icon="onboard-button__icon"
-              iconPos="right"
               onClick={handleReset}
-              className="onboard-modal__cta"
+              className="!rounded-xl !border !border-sky-500/30 !bg-sky-500/15 !px-6 !py-3 !text-sm !font-semibold !text-sky-200 hover:!bg-sky-500/20"
             />
           </div>
         </div>
