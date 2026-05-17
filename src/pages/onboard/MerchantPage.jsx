@@ -249,6 +249,10 @@ export default function MerchantPage() {
               rowHover
               size="small"
               responsiveLayout="scroll"
+              paginator
+              rows={50}
+              rowsPerPageOptions={[25, 50, 100, 200]}
+              paginatorClassName="!border-0 !bg-transparent border-t border-white/5"
               emptyMessage="No merchants found"
             >
               {columns.map((column) => (
