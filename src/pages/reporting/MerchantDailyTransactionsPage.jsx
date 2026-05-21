@@ -122,12 +122,12 @@ const getCreateTime = (row) => {
   const parsed = new Date(createdAt);
   if (Number.isNaN(parsed.getTime())) return "";
 
-  return new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat("en-US", {
     timeZone: REPORTING_TIMEZONE,
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
-    hour12: false,
+    hour12: true,
   }).format(parsed);
 };
 

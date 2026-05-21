@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { DataTable } from "primereact/datatable";
@@ -33,6 +33,14 @@ export default function TerminalsPage() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get("q");
+    if (q !== null && q !== undefined) setSearchValue(String(q));
+    else setSearchValue("");
+  }, [location.search]);
 
   const [editOpen, setEditOpen] = useState(false);
   const [editTid, setEditTid] = useState("");

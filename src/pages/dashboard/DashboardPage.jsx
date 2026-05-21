@@ -21,6 +21,61 @@ export default function DashboardPage() {
   const [terminalRows, setTerminalRows] = useState([]);
   const joinClasses = (...classes) => classes.filter(Boolean).join(" ");
 
+  const decodeHexAsciiIfLikely = useCallback((value) => {
+    if (value === null || value === undefined) return null;
+    const hex = String(value).trim();
+    if (!hex) return null;
+    if (hex.length % 2 !== 0) return null;
+    if (!/^[0-9a-fA-F]+$/.test(hex)) return null;
+
+    let out = "";
+    for (let i = 0; i < hex.length; i += 2) {
+      const code = Number.parseInt(hex.slice(i, i + 2), 16);
+      if (Number.isNaN(code)) return null;
+      out += String.fromCharCode(code);
+    }
+
+    const printable = /^[\x20-\x7E]+$/.test(out);
+    if (!printable) return null;
+    return out;
+  }, []);
+
+  const formatRrn = useCallback(
+    (row) => {
+      const raw = row?.RRN;
+      const decoded = decodeHexAsciiIfLikely(raw);
+      return (decoded ?? String(raw ?? "")).trim();
+    },
+    [decodeHexAsciiIfLikely]
+  );
+
+  const getTxnCreatedAt = useCallback(
+    (row) =>
+      row?.CreatedAt ??
+      row?.createdAt ??
+      row?.created_at ??
+      row?.Created_at ??
+      row?.created ??
+      "",
+    []
+  );
+
+  const formatTxnTime = useCallback(
+    (row) => {
+      const createdAt = getTxnCreatedAt(row);
+      if (!createdAt) return "--";
+      const parsed = new Date(createdAt);
+      if (Number.isNaN(parsed.getTime())) return "--";
+      return parsed.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      });
+    },
+    [getTxnCreatedAt]
+  );
+
   const parseAmount = useCallback((value) => {
     if (value === null || value === undefined) return 0;
     const raw = String(value);
@@ -519,8 +574,10 @@ useEffect(()=>{
 
  const columns = useMemo(
     () => [
+      { field: "CreatedAt", header: "Time", body: (row) => formatTxnTime(row) },
       { field: "Amount", header: "Amount" },
       { field: "STAN", header: "STAN" },
+      { field: "RRN", header: "RRN", body: (row) => formatRrn(row) },
        {field: "AuthNumber", header:"Auth Number"},
       {field: "ResponseCode", header:"Response Code"},
       {field: "TerminalID", header:"TID"},
@@ -528,7 +585,7 @@ useEffect(()=>{
       {field: "CardScheme", header:"Card Scheme"},
       {field: "BatchNo", header:"Batch No."},
        ],
-    []
+    [formatRrn, formatTxnTime]
   );
 
   return (

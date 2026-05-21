@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { Checkbox } from "primereact/checkbox";
@@ -36,6 +36,7 @@ export default function MerchantPage() {
     status: "active",
   });
   const navigate = useNavigate();
+  const location = useLocation();
    useEffect(()=>{
     const loadMerchants = async()=>{
     var response = await api.get("/all-merchants");
@@ -44,6 +45,26 @@ export default function MerchantPage() {
     }
     loadMerchants()
    },[])
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get("q");
+    if (q !== null && q !== undefined) setSearchValue(String(q));
+    else setSearchValue("");
+  }, [location.search]);
+
+  const filteredRows = useMemo(() => {
+    const q = String(searchValue ?? "").trim().toLowerCase();
+    if (!q) return rows;
+    return (rows ?? []).filter((m) => {
+      const mid = String(m?.MID ?? m?.MerchantID ?? "").trim();
+      const merchantName = String(m?.MerchantName ?? m?.merchantName ?? "").trim();
+      const businessName = String(m?.BusinessName ?? m?.businessName ?? "").trim();
+      const phone = String(m?.PhoneNumber ?? m?.phoneNumber ?? "").trim();
+      const address = String(m?.Address ?? m?.address ?? "").trim();
+      return [mid, merchantName, businessName, phone, address].some((v) => String(v).toLowerCase().includes(q));
+    });
+  }, [rows, searchValue]);
 
   const getActive = useCallback((row) => {
     if (row?.IsActive !== undefined && row?.IsActive !== null) return Boolean(row.IsActive);
@@ -242,7 +263,7 @@ export default function MerchantPage() {
         <div className="relative">
           <div className="overflow-hidden rounded-2xl border border-white/5 bg-black/20">
             <DataTable
-              value={rows}
+              value={filteredRows}
               dataKey="MID"
               className="!bg-transparent"
               tableClassName="!bg-transparent"

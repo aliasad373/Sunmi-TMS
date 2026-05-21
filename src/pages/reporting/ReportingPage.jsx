@@ -32,12 +32,12 @@ const getCreateTime = (row) => {
   const parsed = new Date(createdAt);
   if (Number.isNaN(parsed.getTime())) return "";
 
-  return new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat("en-US", {
     timeZone: REPORTING_TIMEZONE,
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
-    hour12: false,
+    hour12: true,
   }).format(parsed);
 };
 
@@ -600,7 +600,7 @@ export default function ReportingPage() {
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent" aria-hidden />
           <div className="relative">
             <div className="text-sm font-semibold text-slate-100">Success vs Failed</div>
-            <div className="mt-4 h-[260px]">
+            <div className="mt-4 h-[320px]">
               <Chart type="doughnut" data={donutData} options={donutOptions} />
             </div>
           </div>

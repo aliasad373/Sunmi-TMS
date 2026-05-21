@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Dropdown } from "primereact/dropdown";
@@ -52,10 +52,18 @@ const USERS = [
 
 export default function UserManagementPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [roleFilter, setRoleFilter] = useState("all");
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get("q");
+    if (q !== null && q !== undefined) setSearchText(String(q));
+    else setSearchText("");
+  }, [location.search]);
 
   const [editOpen, setEditOpen] = useState(false);
   const [editingUserId, setEditingUserId] = useState(null);
