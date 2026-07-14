@@ -19,7 +19,8 @@ const MERCHANT_OPTIONS = [
   { label: "Kissan Merchant", value: "1" },
   { label: "Livestock Merchant", value: "2" },
   { label: "Ration Card Merchant", value: "3" },
-  { label: "Other", value: "0" },
+  { label: "Kissan Card & Other", value: "4" },
+  { label: "Other", value: "0" }
 ];
 
 export default function OnboardMerchantPage() {

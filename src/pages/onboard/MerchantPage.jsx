@@ -9,6 +9,15 @@ import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import searchIcon from "../../assets/images/search-icon.svg";
 import api from "../../network/api";
+
+const MERCHANT_OPTIONS = [
+  { label: "Kissan Merchant", value: "1" },
+  { label: "Livestock Merchant", value: "2" },
+  { label: "Ration Card Merchant", value: "3" },
+  { label: "Kissan Card & Other", value: "4" },
+  { label: "Other", value: "0" },
+];
+
 const MERCHANTS = [
   { label: "Cheesious - Merchant ID", value: "cheesious" },
   { label: "Cafe Bloom - Merchant ID", value: "cafebloom" },
@@ -28,9 +37,11 @@ export default function MerchantPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [editMid, setEditMid] = useState("");
   const [editForm, setEditForm] = useState({
+    dbId: "",
     mid: "",
     merchantName: "",
     businessName: "",
+    businessType: "",
     phoneNumber: "",
     address: "",
     status: "active",
@@ -82,9 +93,11 @@ export default function MerchantPage() {
       const active = getActive(row);
       setEditMid(mid);
       setEditForm({
+        dbId: String(row?.msID ?? "").trim(),
         mid,
         merchantName: String(row?.MerchantName ?? row?.merchantName ?? "").trim(),
         businessName: String(row?.BusinessName ?? row?.businessName ?? "").trim(),
+        businessType: String(row?.BusinessType ?? row?.businessType ?? row?.BussinessType ?? row?.bussinessType ?? row?.Flag ?? row?.flag ?? "").trim(),
         phoneNumber: String(row?.PhoneNumber ?? row?.phoneNumber ?? "").trim(),
         address: String(row?.Address ?? row?.address ?? "").trim(),
         status: active ? "active" : "inactive",
@@ -99,9 +112,23 @@ export default function MerchantPage() {
     setEditMid("");
   }, []);
 
-  const saveEdit = useCallback(() => {
+  const saveEdit = useCallback(async () => {
     if (!editMid) {
       closeEdit();
+      return;
+    }
+
+    try {
+      await api.put(`/update-merchant/${editForm.dbId}`, {
+        MID: editForm.mid,
+        MerchantName: editForm.merchantName,
+        BusinessName: editForm.businessName,
+        PhoneNumber: editForm.phoneNumber,
+        Address: editForm.address,
+        flag: editForm.businessType,
+      });
+    } catch (error) {
+      alert("Update failed: " + (error?.response?.data?.message ?? error.message));
       return;
     }
 
@@ -113,6 +140,8 @@ export default function MerchantPage() {
         const next = { ...r };
         next.MerchantName = editForm.merchantName;
         next.BusinessName = editForm.businessName;
+        next.Flag = editForm.businessType;
+        next.BussinessType = editForm.businessType;
         next.PhoneNumber = editForm.phoneNumber;
         next.Address = editForm.address;
         next.IsActive = editForm.status === "active";
@@ -122,7 +151,7 @@ export default function MerchantPage() {
     );
 
     closeEdit();
-  }, [closeEdit, editForm.address, editForm.businessName, editForm.merchantName, editForm.phoneNumber, editForm.status, editMid, getMid]);
+  }, [closeEdit, editForm.address, editForm.businessName, editForm.businessType, editForm.dbId, editForm.merchantName, editForm.mid, editForm.phoneNumber, editForm.status, editMid, getMid]);
 
   const openToggle = useCallback(
     (row) => {
@@ -389,6 +418,17 @@ export default function MerchantPage() {
                   onChange={(e) => setEditForm((p) => ({ ...p, merchantName: e.target.value }))}
                   placeholder="Merchant Name"
                   className="w-full !h-[46px] !rounded-xl !border !border-white/10 !bg-black/20 !px-4 !text-sm !text-slate-100 placeholder:!text-slate-500 focus:!shadow-none"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-xs font-medium text-slate-300">Business Type</label>
+                <Dropdown
+                  value={editForm.businessType}
+                  options={MERCHANT_OPTIONS}
+                  onChange={(e) => setEditForm((p) => ({ ...p, businessType: e.value }))}
+                  placeholder="Select type"
+                  className="w-full !h-[46px] !rounded-xl !border !border-white/10 !bg-black/20 !text-sm !text-slate-100"
                 />
               </div>
 
