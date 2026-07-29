@@ -448,7 +448,7 @@ export default function TerminalReportingPage() {
   }, [filteredTerminalIds, filteredTx, monthKeys, merchantNameByMid, terminalMeta]);
 
   const handleExport = () => {
-    const headers = ["TerminalID", "TerminalType", "TxnCount", "Volume"];
+    const headers = ["TerminalID", "TerminalType", "SerialNumber", "TxnCount", "Volume"];
     const lines = [headers.join(",")];
 
     const counts = new Map();
@@ -464,9 +464,11 @@ export default function TerminalReportingPage() {
     Array.from(filteredTerminalIds).forEach((tid) => {
       const meta = terminalMeta.get(tid);
       const terminalType = String(meta?.type ?? "").trim() || "Unknown";
+      const serialNumber = String(meta?.serialNumber ?? "").trim();
       const values = [
         tid,
         JSON.stringify(terminalType),
+        JSON.stringify(serialNumber),
         String(counts.get(tid) ?? 0),
         String((volumes.get(tid) ?? 0).toFixed(2)),
       ];

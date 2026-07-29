@@ -38,6 +38,7 @@ const getCreatedAt = (row) =>
 export default function MerchantReportsPage() {
   const [merchantRows, setMerchantRows] = useState([]);
   const [txRows, setTxRows] = useState([]);
+  const [terminalRows, setTerminalRows] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [period, setPeriod] = useState("3m");
@@ -83,9 +84,10 @@ export default function MerchantReportsPage() {
     const load = async () => {
       try {
         setLoading(true);
-        const [merchantsRes, txRes] = await Promise.all([
+        const [merchantsRes, txRes, terminalsRes] = await Promise.all([
           api.get("/all-merchants"),
           api.get("/allTransactions"),
+          api.get("/allTerminals"),
         ]);
 
         if (ignore) return;
@@ -102,10 +104,12 @@ export default function MerchantReportsPage() {
 
         setMerchantRows(Array.isArray(merchantsRes?.data?.data) ? merchantsRes.data.data : []);
         setTxRows(Array.isArray(txRes?.data?.data) ? txRes.data.data : []);
+        setTerminalRows(Array.isArray(terminalsRes?.data?.terminals) ? terminalsRes.data.terminals : []);
       } catch {
         if (!ignore) {
           setMerchantRows([]);
           setTxRows([]);
+          setTerminalRows([]);
         }
       } finally {
         if (!ignore) setLoading(false);
@@ -157,6 +161,20 @@ export default function MerchantReportsPage() {
     });
     return map;
   }, [getMerchantActive, merchantRows]);
+
+  const serialsByMid = useMemo(() => {
+    const map = new Map();
+    (terminalRows ?? []).forEach((t) => {
+      const mid = String(t?.MID ?? t?.MerchantID ?? t?.merchantId ?? "").trim();
+      if (!mid) return;
+      const serial = String(t?.serial_number ?? t?.SerialNumber ?? t?.serialNumber ?? "").trim();
+      if (!serial) return;
+      if (!map.has(mid)) map.set(mid, []);
+      const list = map.get(mid);
+      if (!list.includes(serial)) list.push(serial);
+    });
+    return map;
+  }, [terminalRows]);
 
   const monthKeys = useMemo(() => {
     const count = applied.period === "1m" ? 1 : applied.period === "7d" ? 1 : 3;
@@ -459,6 +477,7 @@ export default function MerchantReportsPage() {
       "MerchantID",
       "MerchantName",
       "Category",
+      "SerialNumbers",
       "TxnCount",
       "SuccessCount",
       "FailedCount",
@@ -469,10 +488,12 @@ export default function MerchantReportsPage() {
     const lines = [headers.join(",")];
 
     merchantSummary.forEach((m) => {
+      const serials = (serialsByMid.get(String(m.mid)) ?? []).join("; ");
       const values = [
         m.mid,
         JSON.stringify(m.name ?? ""),
         JSON.stringify(String(m.category ?? "")),
+        JSON.stringify(serials),
         String(m.total ?? 0),
         String(m.success ?? 0),
         String(m.failed ?? 0),
