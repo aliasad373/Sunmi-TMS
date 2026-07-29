@@ -133,6 +133,9 @@ const getCreateTime = (row) => {
 
 export default function MerchantDailyTransactionsPage() {
   const [rows, setRows] = useState([]);
+  // Serial number transaction row par nahi hota — terminal record par hota hai,
+  // TID se join karke laate hain.
+  const [terminalRows, setTerminalRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [mid, setMid] = useState("");
@@ -157,10 +160,17 @@ export default function MerchantDailyTransactionsPage() {
       setError("");
 
       try {
-        const response = await api.get("/allTransactions");
-        const all = response.data?.data ?? [];
+        // Terminals ka serial chahiye, is liye dono ek saath. Terminals fail ho
+        // to bhi transactions dikhte rahein (serial khali reh jayega).
+        const [txnRes, termRes] = await Promise.all([
+          api.get("/allTransactions"),
+          api.get("/allTerminals").catch(() => null),
+        ]);
+        const all = txnRes.data?.data ?? [];
         const merchantRows = all.filter((r) => r && typeof r === "object" && r.MerchantID);
         setRows(merchantRows);
+        // Terminals response `terminals` key par aata hai (data nahi)
+        setTerminalRows(Array.isArray(termRes?.data?.terminals) ? termRes.data.terminals : []);
       } catch (e) {
         setRows([]);
         setError("Failed to load merchant transactions.");
@@ -171,6 +181,23 @@ export default function MerchantDailyTransactionsPage() {
 
     load();
   }, []);
+
+  // TID -> serial number lookup (terminals se)
+  const serialByTid = useMemo(() => {
+    const map = new Map();
+    (terminalRows ?? []).forEach((t) => {
+      const tid = String(t?.TID ?? t?.TerminalID ?? t?.terminalId ?? "").trim();
+      if (!tid) return;
+      const serial = String(t?.serial_number ?? t?.SerialNumber ?? t?.serialNumber ?? "").trim();
+      if (serial) map.set(tid, serial);
+    });
+    return map;
+  }, [terminalRows]);
+
+  const getSerialNumber = (row) => {
+    const tid = String(row?.TerminalID ?? row?.TID ?? row?.terminalId ?? "").trim();
+    return serialByTid.get(tid) ?? "";
+  };
 
   const columns = useMemo(() => {
     const fixedColumns = [
@@ -186,6 +213,8 @@ export default function MerchantDailyTransactionsPage() {
       },
       { field: "MerchantID", header: "MID" },
       { field: "TerminalID", header: "TID" },
+      // Device serial — transaction row par nahi hota; TID se terminal ka serial
+      { field: "SerialNumber", header: "Serial Number", value: (row) => getSerialNumber(row) },
       { field: "SettlementStatus", header: "Settlement Status", value: (row) => formatSettlementStatus(row) },
       { field: "CardNumber", header: "Card No" },
       { field: "Amount", header: "Amount" },
@@ -212,7 +241,7 @@ export default function MerchantDailyTransactionsPage() {
       .map((field) => ({ field, header: field }));
 
     return [...fixedColumns, ...extraColumns];
-  }, [rows]);
+  }, [rows, serialByTid]);
 
   const createdAtRange = useMemo(() => {
     if (!(startDate instanceof Date) && !(endDate instanceof Date)) {
