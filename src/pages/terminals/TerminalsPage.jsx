@@ -419,6 +419,9 @@ export default function TerminalsPage() {
             size="small"
             scrollable
             scrollHeight="520px"
+            paginator
+            rows={25}
+            rowsPerPageOptions={[25, 500, 1000]}
             emptyMessage={loading ? "Loading..." : "No terminals found"}
           >
             <Column
@@ -783,7 +786,7 @@ export default function TerminalsPage() {
               </div>
 
               <div className="mt-1 text-sm font-semibold text-slate-200">
-                {selectedTerminal.tsID}
+                {selectedTerminal.tid}
               </div>
             </div>
           )}
