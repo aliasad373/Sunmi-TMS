@@ -1,0 +1,280 @@
+
+.onboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  width: 100%;
+  max-width: 720px;
+  margin: auto;
+}
+
+.onboard-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: center;
+  text-align: center;
+}
+
+.onboard-header__icon {
+  width: 40px;
+  height: auto;
+}
+
+.onboard-header__title {
+  margin: 0;
+  color: #1c1c3f;
+  font-family: "Inter", sans-serif;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.onboard-form {
+  display: grid;
+  gap: 20px;
+  width: 100%;
+}
+
+.onboard-input.p-inputtext {
+  width: 100%;
+  height: 58px;
+  border-radius: 10px;
+  border: none;
+  padding: 0 24px;
+  background: #ffffff;
+  box-shadow: 0 0 15.622px rgba(34, 34, 34, 0.03);
+  color: rgba(28, 28, 63, 0.7);
+  font-family: "Inter", sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.onboard-input.p-inputtext:focus {
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.25);
+}
+
+.onboard-input.p-inputtext::placeholder {
+  color: rgba(28, 28, 63, 0.7);
+  font-family: "Inter", sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.onboard-submit.p-button {
+  height: 63px;
+  border-radius: 36px;
+  border: none;
+  background: linear-gradient(90deg, #ff7318 0%, #ff4b07 100%);
+  justify-content: flex-start;
+  text-align: left;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+  margin-top: clamp(48px, 12vh, 160px);
+  padding: 0 10px 0 44px;
+}
+
+.onboard-submit .p-button-icon-right {
+  font-size: 0;
+}
+
+.onboard-submit .p-button-icon.onboard-button__icon {
+  width: 42px;
+  height: 43px;
+  margin-left: 24px;
+  background: url("../../assets/icons/login-arrow.svg") no-repeat center/contain;
+}
+
+.onboard-submit .p-button-label {
+  font-family: "Inter", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: normal;
+}
+.onboard-modal.p-dialog,
+.onboard-modal .p-dialog-content {
+  border-radius: 27px;
+}
+
+.onboard-modal .p-dialog-content {
+  padding: 48px 40px 40px;
+  background: #ffffff;
+  text-align: center;
+}
+
+.onboard-modal__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.onboard-modal__icon {
+  width: 188px;
+  height: auto;
+  margin-bottom: 52px;
+}
+
+.onboard-modal__message {
+  margin: 0;
+  color: #1c1c3f;
+  font-family: "Inter", sans-serif;
+  font-size: 28px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  margin-bottom: 103px;
+}
+
+.onboard-modal__mid {
+  color: #0ea559;
+  font-weight: 400;
+}
+
+@supports (leading-trim: both) and (text-edge: cap) {
+  .onboard-modal__message,
+  .onboard-modal__mid {
+    leading-trim: both;
+    text-edge: cap;
+  }
+}
+
+.onboard-modal__actions {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.onboard-modal__close.p-button {
+  padding: 0 48px;
+  height: 56px;
+  border-radius: 34.696px;
+  border: 3.717px solid #ff7318;
+  background: #ffffff;
+  color: #ff590d;
+  text-align: center;
+  font-family: "Inter", sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+}
+
+@supports (leading-trim: both) and (text-edge: cap) {
+  .onboard-modal__close.p-button {
+    leading-trim: both;
+    text-edge: cap;
+  }
+}
+
+.onboard-modal__close.p-button,
+.onboard-modal__cta.p-button {
+  flex: 1 1 355px;
+  max-width: 355px;
+  min-width: 220px;
+  width: min(355px, 100%);
+}
+
+.onboard-modal__cta.p-button {
+  padding: 0 24px 0 44px;
+  height: 56px;
+  border-radius: 32px;
+  border: none;
+  background: linear-gradient(90deg, #ff7318 0%, #ff4b07 100%);
+  color: #ffffff;
+  font-family: "Inter", sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.onboard-modal__cta .p-button-icon-right {
+  font-size: 0;
+}
+
+.onboard-modal__cta .p-button-icon.onboard-button__icon {
+  width: 32px;
+  height: 32px;
+  margin-left: 16px;
+  background: url("../../assets/icons/login-arrow.svg") no-repeat center/contain;
+}
+
+@supports (leading-trim: both) and (text-edge: cap) {
+  .onboard-modal__cta.p-button {
+    leading-trim: both;
+    text-edge: cap;
+  }
+}
+
+@media (max-width: 768px) {
+  .onboard-page {
+    gap: 36px;
+    padding: 0 16px;
+  }
+
+  .onboard-header__icon {
+    width: 32px;
+  }
+
+  .onboard-header__title {
+    font-size: 26px;
+  }
+
+  .onboard-form {
+    gap: 16px;
+  }
+
+  .onboard-input.p-inputtext {
+    height: 52px;
+    font-size: 16px;
+    padding: 0 18px;
+  }
+
+  .onboard-submit.p-button {
+    height: 56px;
+    padding-left: 28px;
+    margin-top: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .onboard-page {
+    gap: 28px;
+    padding: 0 12px 32px;
+  }
+
+  .onboard-header__title {
+    font-size: 22px;
+  }
+
+  .onboard-modal__message {
+    font-size: 22px;
+    margin-bottom: 60px;
+  }
+
+  .onboard-modal__icon {
+    width: 148px;
+    margin-bottom: 36px;
+  }
+
+  .onboard-modal__actions {
+    gap: 12px;
+  }
+
+  .onboard-modal__close.p-button,
+  .onboard-modal__cta.p-button {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+}

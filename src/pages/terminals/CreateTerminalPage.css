@@ -1,0 +1,250 @@
+.create-terminal__dropdown {
+  width: 100%;
+  border-radius: 10px;
+  padding: 1px;
+  background: linear-gradient(90deg, #ff7318 0%, #ff4b07 100%);
+}
+
+.create-terminal__dropdown .p-dropdown {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 0 15.622px rgba(34, 34, 34, 0.03);
+  height: 58px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.create-terminal__dropdown .p-dropdown-label {
+  padding: 0;
+  font-family: "Inter", sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: rgba(28, 28, 63, 0.7);
+}
+
+.create-terminal__dropdown .p-dropdown-trigger {
+  width: 40px;
+  border-left: 1px solid rgba(28, 31, 74, 0.08);
+  color: #ff4b07;
+}
+.create-terminal-page {
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  width: 100%;
+  max-width: 720px;
+  margin: auto;
+}
+
+.create-terminal-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.create-terminal-form {
+  display: grid;
+  gap: 20px;
+  width: 100%;
+}
+
+.create-terminal__merchant {
+  width: 100%;
+  border-radius: 10px;
+  padding: 1px;
+  background: linear-gradient(90deg, #ff7318 0%, #ff4b07 100%);
+}
+
+.create-terminal__merchant .p-dropdown {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 0 15.622px rgba(34, 34, 34, 0.03);
+  height: 58px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.create-terminal__merchant .p-dropdown-label {
+  padding: 0;
+  font-family: "Inter", sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: rgba(28, 28, 63, 0.7);
+}
+
+.create-terminal__merchant .p-dropdown-trigger {
+  width: 40px;
+  border-left: 1px solid rgba(28, 31, 74, 0.08);
+  color: #ff4b07;
+}
+
+.create-terminal__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.create-terminal__phone.react-tel-input {
+  width: 100%;
+}
+
+.create-terminal__phone.react-tel-input .flag-dropdown,
+.create-terminal__phone-flag {
+  height: 100%;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 10px 0 0 10px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+}
+
+.create-terminal__phone.react-tel-input .selected-flag,
+.create-terminal__phone-flag .selected-flag {
+  width: auto;
+  height: 100%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.create-terminal__phone.react-tel-input .selected-flag .arrow {
+  border-top-color: #1c1f4a;
+}
+
+.create-terminal__phone.react-tel-input .form-control,
+.create-terminal__phone-input {
+  width: 100% !important;
+  height: 58px !important;
+  border-radius: 10px !important;
+  border: none !important;
+  box-shadow: 0 0 15.622px rgba(34, 34, 34, 0.03) !important;
+  background: #ffffff !important;
+  padding: 0 18px 0 76px !important;
+  font-family: "Inter", sans-serif !important;
+  font-size: 18px !important;
+  color: rgba(28, 28, 63, 0.7) !important;
+}
+
+.create-terminal__phone.react-tel-input .country-list,
+.create-terminal__phone-dropdown {
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(28, 31, 74, 0.16);
+  border: none;
+  padding: 8px 0;
+  font-family: "Inter", sans-serif;
+}
+
+.create-terminal__phone.react-tel-input .country-list .country {
+  padding: 8px 16px;
+}
+
+.create-terminal__phone.react-tel-input .country-list .country.highlight {
+  background: rgba(28, 31, 74, 0.08);
+}
+
+.create-terminal__cards {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 0 15.622px rgba(34, 34, 34, 0.03);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.create-terminal__cards-title {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1c1c3f;
+}
+
+.create-terminal__cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px 20px;
+}
+.create-terminal__card {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  color: rgba(28, 28, 63, 0.9);
+}
+
+.create-terminal__checkbox.p-checkbox .p-checkbox-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid #cfd2d9;
+  background: #ffffff;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.create-terminal__checkbox.p-checkbox.p-highlight .p-checkbox-box {
+  background: #0ea559;
+  border-color: #0ea559;
+}
+
+.create-terminal__checkbox.p-checkbox .p-checkbox-box .p-checkbox-icon {
+  font-size: 12px;
+  color: #ffffff;
+}
+
+.create-terminal__submit {
+  margin-top: clamp(48px, 12vh, 160px);
+}
+
+@media (max-width: 768px) {
+  .create-terminal-page {
+    gap: 36px;
+    padding: 0 12px;
+  }
+
+  .create-terminal__row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .create-terminal__cards {
+    padding: 18px;
+    gap: 12px;
+  }
+
+  .create-terminal__cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .create-terminal__dropdown .p-dropdown,
+  .create-terminal__merchant .p-dropdown,
+  .onboard-input.p-inputtext {
+    height: 52px;
+  }
+
+  .create-terminal__submit {
+    margin-top: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .create-terminal-page {
+    gap: 28px;
+  }
+
+  .create-terminal__cards-grid {
+    grid-template-columns: 1fr;
+  }
+}

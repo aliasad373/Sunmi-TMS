@@ -1,0 +1,70 @@
+.create-user-page {
+  width: 100%;
+}
+
+.create-user__access {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 0 15.622px rgba(34, 34, 34, 0.03);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.create-user__access-title {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  color: rgba(28, 28, 63, 0.7);
+}
+
+@supports (leading-trim: both) and (text-edge: cap) {
+  .create-user__access-title {
+    leading-trim: both;
+    text-edge: cap;
+  }
+}
+
+.create-user__access-grid {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: nowrap;
+}
+
+.create-user__access-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  color: rgba(28, 28, 63, 0.9);
+  cursor: pointer;
+}
+
+.create-user__checkbox.p-checkbox .p-checkbox-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid #cfd2d9;
+  background: #ffffff;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.create-user__checkbox.p-checkbox.p-highlight .p-checkbox-box {
+  background: #0ea559;
+  border-color: #0ea559;
+}
+
+.create-user__checkbox.p-checkbox .p-checkbox-box .p-checkbox-icon {
+  font-size: 12px;
+  color: #ffffff;
+}
+
+.create-user__submit {
+  margin-top: clamp(48px, 12vh, 160px);
+}
