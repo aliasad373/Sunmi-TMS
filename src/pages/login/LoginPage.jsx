@@ -17,49 +17,49 @@ export default function LoginPage() {
     setPassword(event.target.value);
   }
 
-  async function  handleLogin(event) {
+  async function handleLogin(event) {
     event.preventDefault();
     // Add login logic here
     localStorage.clear();
     if (!UserName || !password) {
-  alert("Please fill all fields");
-}else{
- //alert(UserName + " " + password);
-    try {
-      const response = await api.post("/login", {
-        username: UserName,
-        password: password,
-        clientType:"WEB"
-      });
-      console.log("Login successful:", response.data);
-      var token = response.data.token
-      var userName = response.data.user.username
+      alert("Please fill all fields");
+    } else {
+      //alert(UserName + " " + password);
+      try {
+        const response = await api.post("/login", {
+          username: UserName,
+          password: password,
+          clientType: "WEB",
+        });
+        console.log("Login successful:", response.data);
+        var token = response.data.token;
+        var userName = response.data.user.username;
         localStorage.setItem("token", token);
-        localStorage.setItem("name",userName)
+        localStorage.setItem("name", userName);
         navigation("/dashboard");
         // Handle successful login (e.g., store token, redirect)
-    } catch (error) {
-      console.error("Login failed:", error);
-      alert("Login failed" + error);
-}
-   }
+      } catch (error) {
+        console.error("Login failed:", error);
+        alert("Login failed" + error);
+      }
+    }
   }
 
   return (
     <div className="login-shell">
       <header className="login-header">
-        <img src={logo} alt="DigiKhata" className="login-logo" />
+        <img src={logo} alt="" className="login-logo" />
         <h1 className="login-title">Terminal Management System</h1>
         <h2 className="login-subtitle">Login to Your Account</h2>
       </header>
 
       <form className="login-form">
-        <span className="p-input-icon-left login-field">
-    
-        </span>
-        <InputText placeholder="Enter Username" className="login-input"
-        value={UserName}
-        onChange={handleName}
+        <span className="p-input-icon-left login-field"></span>
+        <InputText
+          placeholder="Enter Username"
+          className="login-input"
+          value={UserName}
+          onChange={handleName}
         />
         <InputText
           placeholder="Enter Your Password"

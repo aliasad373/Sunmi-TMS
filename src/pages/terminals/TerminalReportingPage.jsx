@@ -46,117 +46,73 @@ export default function TerminalReportingPage() {
     return Number.isFinite(num) ? num : 0;
   }, []);
 
-useEffect(() => {
-  let ignore = false;
+  useEffect(() => {
+    let ignore = false;
 
-  const load = async () => {
-    try {
-      setLoading(true);
-      setTxLoading(true);
+    const load = async () => {
+      try {
+        setLoading(true);
+        setTxLoading(true);
 
-      // Fast APIs first
-      const [termRes, merchantsRes] = await Promise.all([
-        api.get("/allTerminals"),
-        api.get("/all-merchants"),
-      ]);
+        // Fast APIs first
+        const [termRes, merchantsRes] = await Promise.all([
+          api.get("/allTerminals"),
+          api.get("/all-merchants"),
+        ]);
 
-      if (ignore) return;
+        if (ignore) return;
 
-      const terminals = Array.isArray(termRes?.data?.terminals)
-        ? termRes.data.terminals
-        : [];
+        const terminals = Array.isArray(termRes?.data?.terminals)
+          ? termRes.data.terminals
+          : [];
 
-      const merchants = Array.isArray(merchantsRes?.data?.data)
-        ? merchantsRes.data.data
-        : [];
+        const merchants = Array.isArray(merchantsRes?.data?.data)
+          ? merchantsRes.data.data
+          : [];
 
-      setTerminalRows(terminals);
-      setMerchantRows(merchants);
+        setTerminalRows(terminals);
+        setMerchantRows(merchants);
 
-      // Page/table can show immediately
-      setLoading(false);
-
-      // Transactions load in background
-      api
-        .get("/allTransactions")
-        .then((txRes) => {
-          if (ignore) return;
-
-          const tx = Array.isArray(txRes?.data?.data)
-            ? txRes.data.data
-            : [];
-
-          setTxRows(tx);
-        })
-        .catch(() => {
-          if (!ignore) {
-            setTxRows([]);
-          }
-        })
-        .finally(() => {
-          if (!ignore) {
-            setTxLoading(false);
-          }
-        });
-    } catch {
-      if (!ignore) {
-        setTerminalRows([]);
-        setMerchantRows([]);
-        setTxRows([]);
+        // Page/table can show immediately
         setLoading(false);
-        setTxLoading(false);
+
+        // Transactions load in background
+        api
+          .get("/allTransactions")
+          .then((txRes) => {
+            if (ignore) return;
+
+            const tx = Array.isArray(txRes?.data?.data) ? txRes.data.data : [];
+
+            setTxRows(tx);
+          })
+          .catch(() => {
+            if (!ignore) {
+              setTxRows([]);
+            }
+          })
+          .finally(() => {
+            if (!ignore) {
+              setTxLoading(false);
+            }
+          });
+      } catch {
+        if (!ignore) {
+          setTerminalRows([]);
+          setMerchantRows([]);
+          setTxRows([]);
+          setLoading(false);
+          setTxLoading(false);
+        }
       }
-    }
-  };
+    };
 
-  load();
+    load();
 
-  return () => {
-    ignore = true;
-  };
-}, []);
-
-  // useEffect(() => {
-  //   let ignore = false;
-
-  //   const load = async () => {
-  //     try {
-  //       setLoading(true);
-  //       const [termRes, txRes, merchantsRes] = await Promise.all([
-  //         api.get("/allTerminals"),
-  //         api.get("/allTransactions"),
-  //         api.get("/all-merchants"),
-  //       ]);
-
-  //       if (ignore) return;
-
-  //       const terminals = Array.isArray(termRes?.data?.terminals)
-  //         ? termRes.data.terminals
-  //         : [];
-  //       const tx = Array.isArray(txRes?.data?.data) ? txRes.data.data : [];
-  //       const merchants = Array.isArray(merchantsRes?.data?.data)
-  //         ? merchantsRes.data.data
-  //         : [];
-  //       setTerminalRows(terminals);
-  //       setTxRows(tx);
-  //       setMerchantRows(merchants);
-  //     } catch {
-  //       if (!ignore) {
-  //         setTerminalRows([]);
-  //         setTxRows([]);
-  //         setMerchantRows([]);
-  //       }
-  //     } finally {
-  //       if (!ignore) setLoading(false);
-  //     }
-  //   };
-
-  //   load();
-
-  //   return () => {
-  //     ignore = true;
-  //   };
-  // }, []);
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   const range = useMemo(() => {
     const now = new Date();
@@ -394,58 +350,9 @@ useEffect(() => {
     };
   }, [filteredTx, filteredTerminalIds, terminalMeta, monthKeys]);
 
-  // const stats = useMemo(() => {
-  //   const terminals = Array.from(filteredTerminalIds);
-  //   let active = 0;
-  //   let inactive = 0;
-
-  //   terminals.forEach((tid) => {
-  //     const meta = terminalMeta.get(tid);
-  //     if (!meta) {
-  //       active += 1;
-  //       return;
-  //     }
-  //     if (meta.active) active += 1;
-  //     else inactive += 1;
-  //   });
-
-  //   const now = new Date();
-  //   const thisMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  //   const txnsThisMonth = filteredTx.reduce((acc, row) => {
-  //     const createdAt = getCreatedAt(row);
-  //     const parsed = createdAt ? new Date(createdAt) : null;
-  //     if (!parsed || Number.isNaN(parsed.getTime())) return acc;
-  //     const mk = `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}`;
-  //     return mk === thisMonthKey ? acc + 1 : acc;
-  //   }, 0);
-
-  //   return {
-  //     totalTerminals: terminals.length,
-  //     active,
-  //     inactive,
-  //     txnsThisMonth,
-  //   };
-  // }, [filteredTerminalIds, filteredTx, terminalMeta]);
-
   const lineSeries = useMemo(() => {
     return monthKeys.map((key) => reportSummary.monthCounts.get(key) ?? 0);
   }, [monthKeys, reportSummary]);
-
-  // const lineSeries = useMemo(() => {
-  //   const buckets = new Map();
-  //   monthKeys.forEach((k) => buckets.set(k, 0));
-
-  //   filteredTx.forEach((row) => {
-  //     const createdAt = getCreatedAt(row);
-  //     const parsed = createdAt ? new Date(createdAt) : null;
-  //     if (!parsed || Number.isNaN(parsed.getTime())) return;
-  //     const mk = `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}`;
-  //     if (!buckets.has(mk)) return;
-  //     buckets.set(mk, (buckets.get(mk) ?? 0) + 1);
-  //   });
-
-  //   return monthKeys.map((k) => buckets.get(k) ?? 0);
-  // }, [filteredTx, monthKeys]);
 
   const lineData = useMemo(
     () => ({
@@ -511,23 +418,6 @@ useEffect(() => {
       data,
     };
   }, [reportSummary]);
-
-  // const donutSeries = useMemo(() => {
-  //   const buckets = new Map();
-
-  //   filteredTx.forEach((row) => {
-  //     const tid = String(row?.TerminalID ?? row?.TID ?? "").trim();
-  //     if (!tid) return;
-  //     const meta = terminalMeta.get(tid);
-  //     const label = String(meta?.type ?? "").trim() || "Unknown";
-  //     buckets.set(label, (buckets.get(label) ?? 0) + 1);
-  //   });
-
-  //   const labels = Array.from(buckets.keys());
-  //   const data = labels.map((l) => buckets.get(l));
-
-  //   return { labels, data };
-  // }, [filteredTx, terminalMeta]);
 
   const donutData = useMemo(
     () => ({
@@ -625,62 +515,6 @@ useEffect(() => {
     terminalMeta,
     reportSummary,
   ]);
-
-  // const terminalDetailRows = useMemo(() => {
-  //   const monthCounts = new Map();
-
-  //   filteredTx.forEach((row) => {
-  //     const createdAt = getCreatedAt(row);
-  //     const parsed = createdAt ? new Date(createdAt) : null;
-  //     if (!parsed || Number.isNaN(parsed.getTime())) return;
-
-  //     const monthKey = `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}`;
-  //     if (!monthKeys.includes(monthKey)) return;
-
-  //     const tid = String(row?.TerminalID ?? row?.TID ?? "").trim();
-  //     if (!tid) return;
-
-  //     const key = `${tid}__${monthKey}`;
-  //     monthCounts.set(key, (monthCounts.get(key) ?? 0) + 1);
-  //   });
-
-  //   const rows = [];
-  //   for (const tid of filteredTerminalIds) {
-  //     const meta = terminalMeta.get(tid) ?? {
-  //       tid,
-  //       mid: "",
-  //       type: "",
-  //       serialNumber: "",
-  //       location: "",
-  //       active: false,
-  //     };
-  //     const merchantName = merchantNameByMid.get(meta.mid) ?? meta.mid ?? "-";
-
-  //     const countsByMonth = {};
-  //     monthKeys.forEach((mk) => {
-  //       countsByMonth[mk] = monthCounts.get(`${tid}__${mk}`) ?? 0;
-  //     });
-
-  //     rows.push({
-  //       tid,
-  //       merchant: merchantName,
-  //       type: meta.type || "-",
-  //       serialNumber: meta.serialNumber || "-",
-  //       location: meta.location || "-",
-  //       countsByMonth,
-  //       status: meta.active ? "Active" : "Inactive",
-  //     });
-  //   }
-
-  //   rows.sort((a, b) => String(a.tid).localeCompare(String(b.tid)));
-  //   return rows;
-  // }, [
-  //   filteredTerminalIds,
-  //   filteredTx,
-  //   monthKeys,
-  //   merchantNameByMid,
-  //   terminalMeta,
-  // ]);
 
   const handleExport = () => {
     const headers = [
