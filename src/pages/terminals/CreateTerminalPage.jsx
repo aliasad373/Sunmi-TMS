@@ -37,34 +37,37 @@ const INITIAL_FORM = {
 export default function CreateTerminalPage() {
   const [formState, setFormState] = useState(INITIAL_FORM);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [MerchatID, setMerchantID] = useState()
-  const [MerchantOptions, setMerchantOption] = useState([])
-  const [posType, setPosType] = useState([ { label: "Test", value: "test" }, { label: "Production", value: "production" }])
-  const [POS_type, setPOS_Type] = useState("")
-  const [serialNumber, setSerialNumber] = useState("")
-  const [terminalId, setTerminalID] = useState("")
+  const [MerchatID, setMerchantID] = useState();
+  const [MerchantOptions, setMerchantOption] = useState([]);
+  const [posType, setPosType] = useState([
+    { label: "Test", value: "test" },
+    { label: "Production", value: "production" },
+  ]);
+  const [POS_type, setPOS_Type] = useState("");
+  const [serialNumber, setSerialNumber] = useState("");
+  const [terminalId, setTerminalID] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [currencyCode, setCurrencyCode] = useState("0586");
 
   //useEffect
-   useEffect(()=>{
-    const loadMerchants = async()=>{
-    var response = await api.get("/all-merchants");
-    const data  = response.data.data;
-    const merchantList = data.map(item => ({
-  label: item.MID,
-  value: item.MID
-}));
-const updatedMerchantList = [
-  { label: "Please select MID", value: "Please select MID" },
-  ...merchantList
-];
- setMerchantID(updatedMerchantList[0].value);
- setMerchantOption(updatedMerchantList)
-    console.log(response)
-    }
-    loadMerchants()
-   },[])
+  useEffect(() => {
+    const loadMerchants = async () => {
+      var response = await api.get("/all-merchants");
+      const data = response.data.data;
+      const merchantList = data.map((item) => ({
+        label: item.MID,
+        value: item.MID,
+      }));
+      const updatedMerchantList = [
+        { label: "Please select MID", value: "Please select MID" },
+        ...merchantList,
+      ];
+      setMerchantID(updatedMerchantList[0].value);
+      setMerchantOption(updatedMerchantList);
+      console.log(response);
+    };
+    loadMerchants();
+  }, []);
   //
 
   const handleInputChange = (field) => (event) => {
@@ -88,27 +91,27 @@ const updatedMerchantList = [
     });
   };
 
-  const handleSubmit = async(event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     // TODO: replace with real submission logic
-    try{
-      const response = await api.post("/createTerminal",{
+    try {
+      const response = await api.post("/createTerminal", {
         TID: terminalId,
         MID: MerchatID,
         PhoneNumber: phoneNumber,
         serial_number: serialNumber,
         country_code: "0586",
         currency_code: "0586",
-        posType: POS_type
+        posType: POS_type,
       });
-     console.log(response)
-     if(response.data.isSuccess){
-      setShowSuccess(true)
-     }else{
-      alert(response.data.message)
-     }
-    }catch(ex){
-      alert(ex.response.data.message)
+      console.log(response);
+      if (response.data.isSuccess) {
+        setShowSuccess(true);
+      } else {
+        alert(response.data.message);
+      }
+    } catch (ex) {
+      alert(ex.response.data.message);
     }
     //setShowSuccess(true);
   };
@@ -143,18 +146,23 @@ const updatedMerchantList = [
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-8">
       <div className="mb-5 text-xs text-slate-500">
-        Operations / Terminal / <span className="text-sky-400">Add Terminal</span>
+        Operations / Terminal /{" "}
+        <span className="text-sky-400">Add Terminal</span>
       </div>
 
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-slate-100">Add Terminal</h1>
-        <p className="mt-1 text-sm text-slate-400">Register a new terminal on the portal</p>
+        <p className="mt-1 text-sm text-slate-400">
+          Register a new terminal on the portal
+        </p>
       </div>
 
       <div className="rounded-2xl border border-white/5 bg-[#0b1220]/70 p-6 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur">
         <form onSubmit={handleSubmit} className="space-y-8">
           <section>
-            <div className="mb-4 text-[11px] font-semibold tracking-wider text-slate-500">TERMINAL INFORMATION</div>
+            <div className="mb-4 text-[11px] font-semibold tracking-wider text-slate-500">
+              TERMINAL INFORMATION
+            </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className="mb-2 block text-xs font-medium text-slate-300">
@@ -163,10 +171,11 @@ const updatedMerchantList = [
                 <Dropdown
                   value={MerchatID}
                   options={MerchantOptions}
-                  onChange={(e) => {
-                    setMerchantID(e.value);
-                  }}
+                  onChange={(e) => setMerchantID(e.value)}
                   placeholder="Select MID"
+                  filter
+                  filterBy="label"
+                  filterPlaceholder="Search MID..."
                   className="w-full !rounded-xl !border !border-white/10 !bg-black/20 !text-sm !text-slate-100"
                 />
               </div>
@@ -235,7 +244,9 @@ const updatedMerchantList = [
               </div>
 
               <div>
-                <label className="mb-2 block text-xs font-medium text-slate-300">Currency Code</label>
+                <label className="mb-2 block text-xs font-medium text-slate-300">
+                  Currency Code
+                </label>
                 <InputText
                   value={currencyCode}
                   onChange={(event) => {
@@ -276,9 +287,14 @@ const updatedMerchantList = [
         showHeader={false}
       >
         <div className="rounded-2xl border border-white/10 bg-[#0b1220] p-8 text-center text-slate-100">
-          <img src={successIcon} alt="Success" className="mx-auto mb-4 h-12 w-12" />
+          <img
+            src={successIcon}
+            alt="Success"
+            className="mx-auto mb-4 h-12 w-12"
+          />
           <p className="text-base font-semibold">
-            Terminal <span className="text-sky-300">{terminalId || ""}</span> Created Successfully!
+            Terminal <span className="text-sky-300">{terminalId || ""}</span>{" "}
+            Created Successfully!
           </p>
           <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
             <Button

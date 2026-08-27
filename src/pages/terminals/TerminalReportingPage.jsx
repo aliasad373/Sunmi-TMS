@@ -32,6 +32,7 @@ export default function TerminalReportingPage() {
   const [merchantRows, setMerchantRows] = useState([]);
   const [txRows, setTxRows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [txLoading, setTxLoading] = useState(true);
 
   const [period, setPeriod] = useState("3m");
   const [type, setType] = useState("all");
@@ -45,43 +46,117 @@ export default function TerminalReportingPage() {
     return Number.isFinite(num) ? num : 0;
   }, []);
 
-  useEffect(() => {
-    let ignore = false;
+useEffect(() => {
+  let ignore = false;
 
-    const load = async () => {
-      try {
-        setLoading(true);
-        const [termRes, txRes, merchantsRes] = await Promise.all([
-          api.get("/allTerminals"),
-          api.get("/allTransactions"),
-          api.get("/all-merchants"),
-        ]);
+  const load = async () => {
+    try {
+      setLoading(true);
+      setTxLoading(true);
 
-        if (ignore) return;
+      // Fast APIs first
+      const [termRes, merchantsRes] = await Promise.all([
+        api.get("/allTerminals"),
+        api.get("/all-merchants"),
+      ]);
 
-        const terminals = Array.isArray(termRes?.data?.terminals) ? termRes.data.terminals : [];
-        const tx = Array.isArray(txRes?.data?.data) ? txRes.data.data : [];
-        const merchants = Array.isArray(merchantsRes?.data?.data) ? merchantsRes.data.data : [];
-        setTerminalRows(terminals);
-        setTxRows(tx);
-        setMerchantRows(merchants);
-      } catch {
-        if (!ignore) {
-          setTerminalRows([]);
-          setTxRows([]);
-          setMerchantRows([]);
-        }
-      } finally {
-        if (!ignore) setLoading(false);
+      if (ignore) return;
+
+      const terminals = Array.isArray(termRes?.data?.terminals)
+        ? termRes.data.terminals
+        : [];
+
+      const merchants = Array.isArray(merchantsRes?.data?.data)
+        ? merchantsRes.data.data
+        : [];
+
+      setTerminalRows(terminals);
+      setMerchantRows(merchants);
+
+      // Page/table can show immediately
+      setLoading(false);
+
+      // Transactions load in background
+      api
+        .get("/allTransactions")
+        .then((txRes) => {
+          if (ignore) return;
+
+          const tx = Array.isArray(txRes?.data?.data)
+            ? txRes.data.data
+            : [];
+
+          setTxRows(tx);
+        })
+        .catch(() => {
+          if (!ignore) {
+            setTxRows([]);
+          }
+        })
+        .finally(() => {
+          if (!ignore) {
+            setTxLoading(false);
+          }
+        });
+    } catch {
+      if (!ignore) {
+        setTerminalRows([]);
+        setMerchantRows([]);
+        setTxRows([]);
+        setLoading(false);
+        setTxLoading(false);
       }
-    };
+    }
+  };
 
-    load();
+  load();
 
-    return () => {
-      ignore = true;
-    };
-  }, []);
+  return () => {
+    ignore = true;
+  };
+}, []);
+
+  // useEffect(() => {
+  //   let ignore = false;
+
+  //   const load = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const [termRes, txRes, merchantsRes] = await Promise.all([
+  //         api.get("/allTerminals"),
+  //         api.get("/allTransactions"),
+  //         api.get("/all-merchants"),
+  //       ]);
+
+  //       if (ignore) return;
+
+  //       const terminals = Array.isArray(termRes?.data?.terminals)
+  //         ? termRes.data.terminals
+  //         : [];
+  //       const tx = Array.isArray(txRes?.data?.data) ? txRes.data.data : [];
+  //       const merchants = Array.isArray(merchantsRes?.data?.data)
+  //         ? merchantsRes.data.data
+  //         : [];
+  //       setTerminalRows(terminals);
+  //       setTxRows(tx);
+  //       setMerchantRows(merchants);
+  //     } catch {
+  //       if (!ignore) {
+  //         setTerminalRows([]);
+  //         setTxRows([]);
+  //         setMerchantRows([]);
+  //       }
+  //     } finally {
+  //       if (!ignore) setLoading(false);
+  //     }
+  //   };
+
+  //   load();
+
+  //   return () => {
+  //     ignore = true;
+  //   };
+  // }, []);
 
   const range = useMemo(() => {
     const now = new Date();
@@ -113,7 +188,9 @@ export default function TerminalReportingPage() {
 
     for (let i = count - 1; i >= 0; i -= 1) {
       const d = new Date(anchor.getFullYear(), anchor.getMonth() - i, 1);
-      keys.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+      keys.push(
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+      );
     }
 
     return keys;
@@ -140,7 +217,9 @@ export default function TerminalReportingPage() {
   const typeOptions = useMemo(() => {
     const present = new Set();
     (terminalRows ?? []).forEach((t) => {
-      const v = String(t?.posType ?? t?.POSType ?? t?.type ?? t?.Type ?? "").trim();
+      const v = String(
+        t?.posType ?? t?.POSType ?? t?.type ?? t?.Type ?? "",
+      ).trim();
       if (v) present.add(v);
     });
 
@@ -157,11 +236,21 @@ export default function TerminalReportingPage() {
       const tid = String(t?.TID ?? t?.TerminalID ?? t?.terminalId ?? "").trim();
       if (!tid) return;
 
-      const terminalType = String(t?.posType ?? t?.POSType ?? t?.type ?? t?.Type ?? "").trim();
+      const terminalType = String(
+        t?.posType ?? t?.POSType ?? t?.type ?? t?.Type ?? "",
+      ).trim();
       const mid = String(t?.MID ?? t?.MerchantID ?? t?.merchantId ?? "").trim();
-      const serialNumber = String(t?.serial_number ?? t?.SerialNumber ?? t?.serialNumber ?? "").trim();
+      const serialNumber = String(
+        t?.serial_number ?? t?.SerialNumber ?? t?.serialNumber ?? "",
+      ).trim();
       const location = String(
-        t?.Location ?? t?.location ?? t?.Address ?? t?.address ?? t?.Branch ?? t?.branch ?? ""
+        t?.Location ??
+          t?.location ??
+          t?.Address ??
+          t?.address ??
+          t?.Branch ??
+          t?.branch ??
+          "",
       ).trim();
       const statusStr = String(t?.Status ?? t?.status ?? "").trim();
       const explicitActive = Boolean(t?.IsActive ?? t?.Active);
@@ -194,7 +283,11 @@ export default function TerminalReportingPage() {
   const filteredTerminalIds = useMemo(() => {
     const ids = new Set();
     for (const meta of terminalMeta.values()) {
-      if (applied.type !== "all" && String(meta?.type ?? "") !== String(applied.type)) continue;
+      if (
+        applied.type !== "all" &&
+        String(meta?.type ?? "") !== String(applied.type)
+      )
+        continue;
       ids.add(meta.tid);
     }
 
@@ -226,54 +319,133 @@ export default function TerminalReportingPage() {
     });
   }, [filteredTerminalIds, range, txRows]);
 
-  const stats = useMemo(() => {
-    const terminals = Array.from(filteredTerminalIds);
+  const reportSummary = useMemo(() => {
+    const monthCounts = new Map(monthKeys.map((key) => [key, 0]));
+
+    const typeCounts = new Map();
+    const terminalMonthCounts = new Map();
+
+    let txnsThisMonth = 0;
+
+    const now = new Date();
+    const thisMonthKey = `${now.getFullYear()}-${String(
+      now.getMonth() + 1,
+    ).padStart(2, "0")}`;
+
+    for (const row of filteredTx) {
+      const createdAt = getCreatedAt(row);
+      if (!createdAt) continue;
+
+      const parsed = new Date(createdAt);
+      if (Number.isNaN(parsed.getTime())) continue;
+
+      const monthKey = `${parsed.getFullYear()}-${String(
+        parsed.getMonth() + 1,
+      ).padStart(2, "0")}`;
+
+      // Line chart
+      if (monthCounts.has(monthKey)) {
+        monthCounts.set(monthKey, monthCounts.get(monthKey) + 1);
+      }
+
+      if (monthKey === thisMonthKey) {
+        txnsThisMonth++;
+      }
+
+      // Terminal + Type
+      const tid = String(row?.TerminalID ?? row?.TID ?? "").trim();
+
+      if (!tid) continue;
+
+      const meta = terminalMeta.get(tid);
+      const type = String(meta?.type ?? "").trim() || "Unknown";
+
+      typeCounts.set(type, (typeCounts.get(type) ?? 0) + 1);
+
+      // Terminal monthly count
+      if (monthCounts.has(monthKey)) {
+        const key = `${tid}__${monthKey}`;
+
+        terminalMonthCounts.set(key, (terminalMonthCounts.get(key) ?? 0) + 1);
+      }
+    }
+
     let active = 0;
     let inactive = 0;
 
-    terminals.forEach((tid) => {
+    for (const tid of filteredTerminalIds) {
       const meta = terminalMeta.get(tid);
-      if (!meta) {
-        active += 1;
-        return;
-      }
-      if (meta.active) active += 1;
-      else inactive += 1;
-    });
 
-    const now = new Date();
-    const thisMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-    const txnsThisMonth = filteredTx.reduce((acc, row) => {
-      const createdAt = getCreatedAt(row);
-      const parsed = createdAt ? new Date(createdAt) : null;
-      if (!parsed || Number.isNaN(parsed.getTime())) return acc;
-      const mk = `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}`;
-      return mk === thisMonthKey ? acc + 1 : acc;
-    }, 0);
+      if (!meta || meta.active) {
+        active++;
+      } else {
+        inactive++;
+      }
+    }
 
     return {
-      totalTerminals: terminals.length,
+      totalTerminals: filteredTerminalIds.size,
       active,
       inactive,
       txnsThisMonth,
+      monthCounts,
+      typeCounts,
+      terminalMonthCounts,
     };
-  }, [filteredTerminalIds, filteredTx, terminalMeta]);
+  }, [filteredTx, filteredTerminalIds, terminalMeta, monthKeys]);
+
+  // const stats = useMemo(() => {
+  //   const terminals = Array.from(filteredTerminalIds);
+  //   let active = 0;
+  //   let inactive = 0;
+
+  //   terminals.forEach((tid) => {
+  //     const meta = terminalMeta.get(tid);
+  //     if (!meta) {
+  //       active += 1;
+  //       return;
+  //     }
+  //     if (meta.active) active += 1;
+  //     else inactive += 1;
+  //   });
+
+  //   const now = new Date();
+  //   const thisMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  //   const txnsThisMonth = filteredTx.reduce((acc, row) => {
+  //     const createdAt = getCreatedAt(row);
+  //     const parsed = createdAt ? new Date(createdAt) : null;
+  //     if (!parsed || Number.isNaN(parsed.getTime())) return acc;
+  //     const mk = `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}`;
+  //     return mk === thisMonthKey ? acc + 1 : acc;
+  //   }, 0);
+
+  //   return {
+  //     totalTerminals: terminals.length,
+  //     active,
+  //     inactive,
+  //     txnsThisMonth,
+  //   };
+  // }, [filteredTerminalIds, filteredTx, terminalMeta]);
 
   const lineSeries = useMemo(() => {
-    const buckets = new Map();
-    monthKeys.forEach((k) => buckets.set(k, 0));
+    return monthKeys.map((key) => reportSummary.monthCounts.get(key) ?? 0);
+  }, [monthKeys, reportSummary]);
 
-    filteredTx.forEach((row) => {
-      const createdAt = getCreatedAt(row);
-      const parsed = createdAt ? new Date(createdAt) : null;
-      if (!parsed || Number.isNaN(parsed.getTime())) return;
-      const mk = `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}`;
-      if (!buckets.has(mk)) return;
-      buckets.set(mk, (buckets.get(mk) ?? 0) + 1);
-    });
+  // const lineSeries = useMemo(() => {
+  //   const buckets = new Map();
+  //   monthKeys.forEach((k) => buckets.set(k, 0));
 
-    return monthKeys.map((k) => buckets.get(k) ?? 0);
-  }, [filteredTx, monthKeys]);
+  //   filteredTx.forEach((row) => {
+  //     const createdAt = getCreatedAt(row);
+  //     const parsed = createdAt ? new Date(createdAt) : null;
+  //     if (!parsed || Number.isNaN(parsed.getTime())) return;
+  //     const mk = `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}`;
+  //     if (!buckets.has(mk)) return;
+  //     buckets.set(mk, (buckets.get(mk) ?? 0) + 1);
+  //   });
+
+  //   return monthKeys.map((k) => buckets.get(k) ?? 0);
+  // }, [filteredTx, monthKeys]);
 
   const lineData = useMemo(
     () => ({
@@ -292,7 +464,7 @@ export default function TerminalReportingPage() {
         },
       ],
     }),
-    [lineSeries, monthLabels]
+    [lineSeries, monthLabels],
   );
 
   const chartOptions = useMemo(
@@ -324,25 +496,38 @@ export default function TerminalReportingPage() {
         },
       },
     }),
-    []
+    [],
   );
 
   const donutSeries = useMemo(() => {
-    const buckets = new Map();
+    const labels = Array.from(reportSummary.typeCounts.keys());
 
-    filteredTx.forEach((row) => {
-      const tid = String(row?.TerminalID ?? row?.TID ?? "").trim();
-      if (!tid) return;
-      const meta = terminalMeta.get(tid);
-      const label = String(meta?.type ?? "").trim() || "Unknown";
-      buckets.set(label, (buckets.get(label) ?? 0) + 1);
-    });
+    const data = labels.map(
+      (label) => reportSummary.typeCounts.get(label) ?? 0,
+    );
 
-    const labels = Array.from(buckets.keys());
-    const data = labels.map((l) => buckets.get(l));
+    return {
+      labels,
+      data,
+    };
+  }, [reportSummary]);
 
-    return { labels, data };
-  }, [filteredTx, terminalMeta]);
+  // const donutSeries = useMemo(() => {
+  //   const buckets = new Map();
+
+  //   filteredTx.forEach((row) => {
+  //     const tid = String(row?.TerminalID ?? row?.TID ?? "").trim();
+  //     if (!tid) return;
+  //     const meta = terminalMeta.get(tid);
+  //     const label = String(meta?.type ?? "").trim() || "Unknown";
+  //     buckets.set(label, (buckets.get(label) ?? 0) + 1);
+  //   });
+
+  //   const labels = Array.from(buckets.keys());
+  //   const data = labels.map((l) => buckets.get(l));
+
+  //   return { labels, data };
+  // }, [filteredTx, terminalMeta]);
 
   const donutData = useMemo(
     () => ({
@@ -363,7 +548,7 @@ export default function TerminalReportingPage() {
         },
       ],
     }),
-    [donutSeries.data, donutSeries.labels]
+    [donutSeries.data, donutSeries.labels],
   );
 
   const donutOptions = useMemo(
@@ -388,7 +573,7 @@ export default function TerminalReportingPage() {
       },
       layout: { padding: 0 },
     }),
-    []
+    [],
   );
 
   const rangeLabel = useMemo(() => {
@@ -398,24 +583,8 @@ export default function TerminalReportingPage() {
   }, [range.end, range.start]);
 
   const terminalDetailRows = useMemo(() => {
-    const monthCounts = new Map();
-
-    filteredTx.forEach((row) => {
-      const createdAt = getCreatedAt(row);
-      const parsed = createdAt ? new Date(createdAt) : null;
-      if (!parsed || Number.isNaN(parsed.getTime())) return;
-
-      const monthKey = `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}`;
-      if (!monthKeys.includes(monthKey)) return;
-
-      const tid = String(row?.TerminalID ?? row?.TID ?? "").trim();
-      if (!tid) return;
-
-      const key = `${tid}__${monthKey}`;
-      monthCounts.set(key, (monthCounts.get(key) ?? 0) + 1);
-    });
-
     const rows = [];
+
     for (const tid of filteredTerminalIds) {
       const meta = terminalMeta.get(tid) ?? {
         tid,
@@ -425,11 +594,14 @@ export default function TerminalReportingPage() {
         location: "",
         active: false,
       };
+
       const merchantName = merchantNameByMid.get(meta.mid) ?? meta.mid ?? "-";
 
       const countsByMonth = {};
+
       monthKeys.forEach((mk) => {
-        countsByMonth[mk] = monthCounts.get(`${tid}__${mk}`) ?? 0;
+        countsByMonth[mk] =
+          reportSummary.terminalMonthCounts.get(`${tid}__${mk}`) ?? 0;
       });
 
       rows.push({
@@ -444,11 +616,80 @@ export default function TerminalReportingPage() {
     }
 
     rows.sort((a, b) => String(a.tid).localeCompare(String(b.tid)));
+
     return rows;
-  }, [filteredTerminalIds, filteredTx, monthKeys, merchantNameByMid, terminalMeta]);
+  }, [
+    filteredTerminalIds,
+    monthKeys,
+    merchantNameByMid,
+    terminalMeta,
+    reportSummary,
+  ]);
+
+  // const terminalDetailRows = useMemo(() => {
+  //   const monthCounts = new Map();
+
+  //   filteredTx.forEach((row) => {
+  //     const createdAt = getCreatedAt(row);
+  //     const parsed = createdAt ? new Date(createdAt) : null;
+  //     if (!parsed || Number.isNaN(parsed.getTime())) return;
+
+  //     const monthKey = `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}`;
+  //     if (!monthKeys.includes(monthKey)) return;
+
+  //     const tid = String(row?.TerminalID ?? row?.TID ?? "").trim();
+  //     if (!tid) return;
+
+  //     const key = `${tid}__${monthKey}`;
+  //     monthCounts.set(key, (monthCounts.get(key) ?? 0) + 1);
+  //   });
+
+  //   const rows = [];
+  //   for (const tid of filteredTerminalIds) {
+  //     const meta = terminalMeta.get(tid) ?? {
+  //       tid,
+  //       mid: "",
+  //       type: "",
+  //       serialNumber: "",
+  //       location: "",
+  //       active: false,
+  //     };
+  //     const merchantName = merchantNameByMid.get(meta.mid) ?? meta.mid ?? "-";
+
+  //     const countsByMonth = {};
+  //     monthKeys.forEach((mk) => {
+  //       countsByMonth[mk] = monthCounts.get(`${tid}__${mk}`) ?? 0;
+  //     });
+
+  //     rows.push({
+  //       tid,
+  //       merchant: merchantName,
+  //       type: meta.type || "-",
+  //       serialNumber: meta.serialNumber || "-",
+  //       location: meta.location || "-",
+  //       countsByMonth,
+  //       status: meta.active ? "Active" : "Inactive",
+  //     });
+  //   }
+
+  //   rows.sort((a, b) => String(a.tid).localeCompare(String(b.tid)));
+  //   return rows;
+  // }, [
+  //   filteredTerminalIds,
+  //   filteredTx,
+  //   monthKeys,
+  //   merchantNameByMid,
+  //   terminalMeta,
+  // ]);
 
   const handleExport = () => {
-    const headers = ["TerminalID", "TerminalType", "SerialNumber", "TxnCount", "Volume"];
+    const headers = [
+      "TerminalID",
+      "TerminalType",
+      "SerialNumber",
+      "TxnCount",
+      "Volume",
+    ];
     const lines = [headers.join(",")];
 
     const counts = new Map();
@@ -475,7 +716,9 @@ export default function TerminalReportingPage() {
       lines.push(values.join(","));
     });
 
-    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([lines.join("\n")], {
+      type: "text/csv;charset=utf-8;",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -492,8 +735,12 @@ export default function TerminalReportingPage() {
 
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-100">Terminal Reports</h1>
-          <p className="mt-1 text-sm text-slate-400">Activity and performance by terminal</p>
+          <h1 className="text-2xl font-semibold text-slate-100">
+            Terminal Reports
+          </h1>
+          <p className="mt-1 text-sm text-slate-400">
+            Activity and performance by terminal
+          </p>
           <p className="mt-1 text-xs text-slate-500">Range: {rangeLabel}</p>
         </div>
 
@@ -507,10 +754,15 @@ export default function TerminalReportingPage() {
       </div>
 
       <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-[#0b1220]/70 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent" aria-hidden />
+        <div
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent"
+          aria-hidden
+        />
         <div className="relative flex flex-wrap items-end gap-3">
           <div className="min-w-[190px]">
-            <div className="mb-2 text-[11px] font-semibold tracking-wider text-slate-500">PERIOD</div>
+            <div className="mb-2 text-[11px] font-semibold tracking-wider text-slate-500">
+              PERIOD
+            </div>
             <Dropdown
               value={period}
               options={PERIOD_OPTIONS}
@@ -520,7 +772,9 @@ export default function TerminalReportingPage() {
           </div>
 
           <div className="min-w-[190px]">
-            <div className="mb-2 text-[11px] font-semibold tracking-wider text-slate-500">TYPE</div>
+            <div className="mb-2 text-[11px] font-semibold tracking-wider text-slate-500">
+              TYPE
+            </div>
             <Dropdown
               value={type}
               options={typeOptions}
@@ -540,55 +794,105 @@ export default function TerminalReportingPage() {
 
       <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-4">
         <div className="rounded-2xl border border-white/5 bg-[#0b1220]/70 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
-          <div className="text-[11px] font-semibold tracking-wider text-slate-500">TOTAL TERMINALS</div>
-          <div className="mt-2 text-2xl font-semibold text-slate-100">{loading ? "-" : stats.totalTerminals}</div>
+          <div className="text-[11px] font-semibold tracking-wider text-slate-500">
+            TOTAL TERMINALS
+          </div>
+          <div className="mt-2 text-2xl font-semibold text-slate-100">
+            {loading ? "-" : reportSummary.totalTerminals}
+          </div>
         </div>
+
         <div className="rounded-2xl border border-white/5 bg-[#0b1220]/70 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
-          <div className="text-[11px] font-semibold tracking-wider text-slate-500">ACTIVE</div>
-          <div className="mt-2 text-2xl font-semibold text-emerald-300">{loading ? "-" : stats.active}</div>
+          <div className="text-[11px] font-semibold tracking-wider text-slate-500">
+            ACTIVE
+          </div>
+          <div className="mt-2 text-2xl font-semibold text-emerald-300">
+            {loading ? "-" : reportSummary.active}
+          </div>
         </div>
+
         <div className="rounded-2xl border border-white/5 bg-[#0b1220]/70 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
-          <div className="text-[11px] font-semibold tracking-wider text-slate-500">INACTIVE</div>
-          <div className="mt-2 text-2xl font-semibold text-rose-300">{loading ? "-" : stats.inactive}</div>
+          <div className="text-[11px] font-semibold tracking-wider text-slate-500">
+            INACTIVE
+          </div>
+          <div className="mt-2 text-2xl font-semibold text-rose-300">
+            {loading ? "-" : reportSummary.inactive}
+          </div>
         </div>
+
         <div className="rounded-2xl border border-white/5 bg-[#0b1220]/70 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
-          <div className="text-[11px] font-semibold tracking-wider text-slate-500">TXNS THIS MONTH</div>
-          <div className="mt-2 text-2xl font-semibold text-violet-300">{loading ? "-" : stats.txnsThisMonth.toLocaleString()}</div>
+          <div className="text-[11px] font-semibold tracking-wider text-slate-500">
+            TXNS THIS MONTH
+          </div>
+          <div className="mt-2 text-2xl font-semibold text-violet-300">
+            {loading ? "-" : reportSummary.txnsThisMonth.toLocaleString()}
+          </div>
         </div>
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        {/* Line Chart */}
         <div className="rounded-2xl border border-white/5 bg-[#0b1220]/70 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.25)] lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <div className="text-sm font-semibold text-slate-100">Terminal Txns ({applied.period === "3m" ? "3 months" : "range"})</div>
-              <div className="mt-1 text-xs text-slate-500">Transactions count over time</div>
+              <div className="text-sm font-semibold text-slate-100">
+                Terminal Txns ({applied.period === "3m" ? "3 months" : "range"})
+              </div>
+
+              <div className="mt-1 text-xs text-slate-500">
+                Transactions count over time
+              </div>
             </div>
           </div>
+
           <div className="h-[260px]">
-            <Chart type="line" data={lineData} options={chartOptions} />
+            {txLoading ? (
+              <div className="flex h-full items-center justify-center">
+                <span className="text-sm text-slate-500">Loading chart...</span>
+              </div>
+            ) : (
+              <Chart type="line" data={lineData} options={chartOptions} />
+            )}
           </div>
         </div>
 
+        {/* Doughnut Chart */}
         <div className="rounded-2xl border border-white/5 bg-[#0b1220]/70 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <div className="text-sm font-semibold text-slate-100">Txns by Terminal Type</div>
-              <div className="mt-1 text-xs text-slate-500">Distribution by posType</div>
+              <div className="text-sm font-semibold text-slate-100">
+                Txns by Terminal Type
+              </div>
+
+              <div className="mt-1 text-xs text-slate-500">
+                Distribution by posType
+              </div>
             </div>
           </div>
+
           <div className="h-[260px]">
-            <Chart type="doughnut" data={donutData} options={donutOptions} />
+            {txLoading ? (
+              <div className="flex h-full items-center justify-center">
+                <span className="text-sm text-slate-500">Loading chart...</span>
+              </div>
+            ) : (
+              <Chart type="doughnut" data={donutData} options={donutOptions} />
+            )}
           </div>
         </div>
       </div>
 
       <section className="mt-6 relative overflow-hidden rounded-2xl border border-white/5 bg-[#0b1220]/70 p-5 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent" aria-hidden />
+        <div
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent"
+          aria-hidden
+        />
         <div className="relative">
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
-              <div className="text-sm font-semibold text-slate-100">Terminal Detail</div>
+              <div className="text-sm font-semibold text-slate-100">
+                Terminal Detail
+              </div>
             </div>
           </div>
 
@@ -602,7 +906,10 @@ export default function TerminalReportingPage() {
               size="small"
               scrollable
               scrollHeight="420px"
-              emptyMessage="No terminals found"
+              paginator
+              rows={25}
+              rowsPerPageOptions={[25, 50, 100]}
+              emptyMessage="Loading..."
             >
               <Column
                 field="tid"
@@ -648,7 +955,8 @@ export default function TerminalReportingPage() {
               <Column
                 header="Status"
                 body={(row) => {
-                  const active = String(row?.status ?? "").toLowerCase() === "active";
+                  const active =
+                    String(row?.status ?? "").toLowerCase() === "active";
                   return (
                     <span
                       className={
@@ -657,7 +965,13 @@ export default function TerminalReportingPage() {
                           : "inline-flex items-center gap-2 rounded-full bg-slate-500/15 px-3 py-1 text-xs font-semibold text-slate-200"
                       }
                     >
-                      <span className={active ? "h-2 w-2 rounded-full bg-emerald-400" : "h-2 w-2 rounded-full bg-slate-400"} />
+                      <span
+                        className={
+                          active
+                            ? "h-2 w-2 rounded-full bg-emerald-400"
+                            : "h-2 w-2 rounded-full bg-slate-400"
+                        }
+                      />
                       {active ? "Active" : "Inactive"}
                     </span>
                   );
